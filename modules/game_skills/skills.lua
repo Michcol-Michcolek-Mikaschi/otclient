@@ -169,7 +169,7 @@ end
 
 local SKILL_GROUPS = {
     offence = {
-        'skillId7', 'skillId8', 'skillId9', 'skillId10', 'skillId11', 'skillId12', 
+        'skillId8', 'skillId9', 'skillId10', 'skillId11', 'skillId12', 
         'skillId13', 'skillId14', 'skillId15', 'skillId16', 'separadorOnOffenceInfoChange',
         'damageHealing', 'attackValue', 'convertedDamage', 'convertedElement',
         'criticalHit', 'lifeLeech', 'manaLeech', 'criticalChance', 'criticalExtraDamage', 'onslaught'
@@ -185,7 +185,7 @@ local SKILL_GROUPS = {
     },
     individual = {
         'level', 'stamina', 'offlineTraining', 'magiclevel', 'skillId0', 'skillId1', 
-        'skillId2', 'skillId3', 'skillId4', 'skillId5', 'skillId6'
+        'skillId2', 'skillId3', 'skillId4', 'skillId5', 'skillId6', 'skillId7'
     }
 }
 
@@ -377,7 +377,8 @@ function onSkillsMenuAction(actionId)
             showAxe = 'skillId3',
             showDistance = 'skillId4',
             showShielding = 'skillId5',
-            showFishing = 'skillId6'
+            showFishing = 'skillId6',
+            showSzybkosc = 'skillId7'
         }
         local skillId = skillMap[actionId]
         if skillId then
@@ -398,7 +399,8 @@ function getSkillVisibilityState(actionId)
         showAxe = 'skillId3',
         showDistance = 'skillId4',
         showShielding = 'skillId5',
-        showFishing = 'skillId6'
+        showFishing = 'skillId6',
+        showSzybkosc = 'skillId7'
     }
     
     local groupMap = {
@@ -620,7 +622,7 @@ function setSkillValue(id, value)
     local skill = skillsWindow:recursiveGetChildById(id)
     if skill then
         local widget = skill:getChildById('value')
-        if id == "skillId7" or id == "skillId8" or id == "skillId9" or id == "skillId11" or id == "skillId13" or id == "skillId14" or id == "skillId15" or id == "skillId16" then
+        if id == "skillId8" or id == "skillId9" or id == "skillId11" or id == "skillId13" or id == "skillId14" or id == "skillId15" or id == "skillId16" then
             if g_game.getFeature(GameEnterGameShowAppearance) then
                 value = value / 100
             end
@@ -809,13 +811,13 @@ function refresh()
     for i = Skill.Fist, Skill.Transcendence do
         onSkillChange(player, i, player:getSkillLevel(i), player:getSkillLevelPercent(i))
 
-        if i > Skill.Fishing then
+        if i > Skill.Szybkosc then
             local ativedAdditionalSkills = hasAdditionalSkills
             if ativedAdditionalSkills then
                 if g_game.getClientVersion() >= 1281 then
                     if i == Skill.LifeLeechAmount or i == Skill.ManaLeechAmount then
                         ativedAdditionalSkills = false
-                    elseif g_game.getClientVersion() < 1332 and Skill.Transcendence then
+                    elseif g_game.getClientVersion() < 1332 and i == Skill.Transcendence then
                         ativedAdditionalSkills = false
                     elseif i >= Skill.Fatal and player:getSkillLevel(i) <= 0 then
                         ativedAdditionalSkills = false
@@ -1205,7 +1207,8 @@ function onSkillChange(localPlayer, id, level, percent)
 
     onBaseSkillChange(localPlayer, id, localPlayer:getSkillBaseLevel(id))
 
-    if id > Skill.ManaLeechAmount then
+    -- Show/hide advanced skills based on level (skills after Szybkosc)
+    if id > Skill.Szybkosc then
 	    toggleSkill('skillId' .. id, level > 0)
     end
 end
@@ -1287,7 +1290,7 @@ local function setSkillValueWithTooltips(id, value, tooltip, showPercentage, col
     
     if g_game.getClientVersion() < 1412 then
         local oldClientStats = {
-            'skillId7', 'skillId8', 'skillId9', 'skillId10', 'skillId11', 'skillId12', 
+            'skillId8', 'skillId9', 'skillId10', 'skillId11', 'skillId12', 
             'skillId13', 'skillId14', 'skillId15', 'skillId16',
             'damageHealing', 'attackValue', 'convertedDamage', 'convertedElement',
             'criticalHit', 'lifeLeech', 'manaLeech', 'criticalChance', 'criticalExtraDamage', 'onslaught',

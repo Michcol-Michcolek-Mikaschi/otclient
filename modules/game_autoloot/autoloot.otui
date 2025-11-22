@@ -1,0 +1,380 @@
+BlacklistItem < UIWidget
+  height: 30
+  margin-bottom: 2
+  background-color: #2c2c3e
+  border: 1 #3a3a4e
+  
+  Label
+    id: itemName
+    anchors.left: parent.left
+    anchors.verticalCenter: parent.verticalCenter
+    margin-left: 10
+    color: #ecf0f1
+    font: verdana-11px-rounded
+  
+  Button
+    id: removeBtn
+    !text: tr('Remove')
+    size: 65 22
+    anchors.right: parent.right
+    anchors.verticalCenter: parent.verticalCenter
+    margin-right: 5
+    background-color: #c0392b
+    color: #ffffff
+    font: verdana-11px-rounded
+    $hover:
+      background-color: #e74c3c
+
+ModeButton < UIWidget
+  height: 45
+  margin-bottom: 6
+  background-color: #2c2c3e
+  border: 2 #3a3a4e
+  
+  $hover:
+    background-color: #34495e
+    border-color: #5a6a7e
+  
+  $on:
+    background-color: #3498db
+    border-color: #2980b9
+  
+  Label
+    id: modeLabel
+    anchors.centerIn: parent
+    color: #ecf0f1
+    font: verdana-11px-antialised
+
+MainWindow
+  id: autolootWindow
+  !text: tr('Auto Loot System')
+  size: 920 580
+  visible: false
+  @onEscape: modules.game_autoloot.hide()
+
+  Panel
+    id: leftColumn
+    anchors.top: parent.top
+    anchors.left: parent.left
+    anchors.bottom: parent.bottom
+    width: 280
+    margin: 4
+    background-color: #1e1e2e
+    border: 1 #000000
+    
+    UIWidget
+      id: bankPanel
+      anchors.top: parent.top
+      anchors.left: parent.left
+      anchors.right: parent.right
+      height: 195
+      margin: 5
+      background-color: #16161e
+      border: 3 #f39c12
+      
+      Label
+        !text: tr('Bank Balance')
+        anchors.top: parent.top
+        anchors.horizontalCenter: parent.horizontalCenter
+        margin-top: 12
+        font: verdana-11px-antialised
+        color: #f39c12
+        text-align: center
+        text-auto-resize: true
+      
+      Label
+        id: bankBalanceLabel
+        !text: tr('0 gold')
+        anchors.top: prev.bottom
+        anchors.horizontalCenter: parent.horizontalCenter
+        margin-top: 10
+        font: terminus-14px-bold
+        color: #2ecc71
+        text-align: center
+        text-auto-resize: true
+      
+      Panel
+        id: bankButtonsPanel
+        anchors.left: parent.left
+        anchors.right: parent.right
+        anchors.bottom: parent.bottom
+        height: 100
+        margin: 10
+        layout:
+          type: verticalBox
+          spacing: 5
+        
+        Button
+          id: depositBtn
+          !text: tr('Deposit')
+          height: 30
+          background-color: #27ae60
+          font: verdana-11px-rounded
+          @onClick: modules.game_autoloot.deposit()
+          $hover:
+            background-color: #2ecc71
+        
+        Button
+          id: withdrawBtn
+          !text: tr('Withdraw')
+          height: 30
+          background-color: #2980b9
+          font: verdana-11px-rounded
+          @onClick: modules.game_autoloot.withdraw()
+          $hover:
+            background-color: #3498db
+        
+        Button
+          id: transferBtn
+          !text: tr('Transfer')
+          height: 30
+          background-color: #8e44ad
+          font: verdana-11px-rounded
+          @onClick: modules.game_autoloot.transfer()
+          $hover:
+            background-color: #9b59b6
+    
+    UIWidget
+      id: modePanel
+      anchors.top: bankPanel.bottom
+      anchors.left: parent.left
+      anchors.right: parent.right
+      anchors.bottom: infoPanel.top
+      margin: 5
+      margin-top: 8
+      background-color: #16161e
+      border: 1 #000000
+      
+      Label
+        id: modeTitle
+        !text: tr('Autoloot Mode')
+        anchors.top: parent.top
+        anchors.horizontalCenter: parent.horizontalCenter
+        margin-top: 10
+        font: verdana-11px-antialised
+        color: #3498db
+        text-align: center
+      
+      Panel
+        id: modeButtonsPanel
+        anchors.top: prev.bottom
+        anchors.left: parent.left
+        anchors.right: parent.right
+        anchors.bottom: parent.bottom
+        margin: 8
+        margin-top: 10
+        layout:
+          type: verticalBox
+          spacing: 0
+        
+        ModeButton
+          id: modeButton1
+          @onClick: modules.game_autoloot.setMode(1)
+          
+          Label
+            id: modeLabel
+            !text: tr('All except food')
+        
+        ModeButton
+          id: modeButton2
+          @onClick: modules.game_autoloot.setMode(2)
+          
+          Label
+            id: modeLabel
+            !text: tr('All items + food')
+        
+        ModeButton
+          id: modeButton3
+          @onClick: modules.game_autoloot.setMode(3)
+          
+          Label
+            id: modeLabel
+            !text: tr('Only food')
+        
+        ModeButton
+          id: modeButton4
+          @onClick: modules.game_autoloot.setMode(4)
+          
+          Label
+            id: modeLabel
+            !text: tr('Disabled')
+    
+    UIWidget
+      id: infoPanel
+      anchors.left: parent.left
+      anchors.right: parent.right
+      anchors.bottom: parent.bottom
+      height: 60
+      margin: 5
+      background-color: #16161e
+      border: 1 #000000
+      
+      Label
+        !text: tr('Press Ctrl+L to toggle')
+        anchors.top: parent.top
+        anchors.horizontalCenter: parent.horizontalCenter
+        margin-top: 8
+        font: verdana-11px-rounded
+        color: #f39c12
+        text-align: center
+      
+      Label
+        !text: tr('Currency always goes to bank')
+        anchors.top: prev.bottom
+        anchors.horizontalCenter: parent.horizontalCenter
+        margin-top: 4
+        font: verdana-11px-rounded
+        color: #95a5a6
+        text-align: center
+
+  Panel
+    id: rightColumn
+    anchors.top: parent.top
+    anchors.left: leftColumn.right
+    anchors.right: parent.right
+    anchors.bottom: parent.bottom
+    margin: 4
+    margin-left: 0
+    background-color: #1e1e2e
+    border: 1 #000000
+    
+    UIWidget
+      id: blacklistHeader
+      anchors.top: parent.top
+      anchors.left: parent.left
+      anchors.right: parent.right
+      height: 50
+      margin: 5
+      background-color: #16161e
+      border: 2 #e74c3c
+      
+      Label
+        !text: tr('Blacklist Settings')
+        anchors.left: parent.left
+        anchors.verticalCenter: parent.verticalCenter
+        margin-left: 12
+        font: verdana-11px-antialised
+        color: #e74c3c
+      
+      CheckBox
+        id: blacklistToggle
+        !text: tr('OFF')
+        anchors.right: parent.right
+        anchors.verticalCenter: parent.verticalCenter
+        margin-right: 12
+        width: 60
+        font: verdana-11px-rounded
+        color: #95a5a6
+        @onCheckChange: modules.game_autoloot.toggleBlacklist()
+    
+    UIWidget
+      id: inputSection
+      anchors.top: blacklistHeader.bottom
+      anchors.left: parent.left
+      anchors.right: parent.right
+      height: 95
+      margin: 5
+      margin-top: 8
+      background-color: #2c2c3e
+      border: 1 #3a3a4e
+      
+      Label
+        id: inputLabel
+        !text: tr('Item Name or ID:')
+        anchors.top: parent.top
+        anchors.left: parent.left
+        margin-top: 8
+        margin-left: 10
+        font: verdana-11px-rounded
+        color: #ffffff
+      
+      Button
+        id: addButton
+        !text: tr('Add')
+        anchors.right: parent.right
+        anchors.bottom: parent.bottom
+        margin-right: 10
+        margin-bottom: 10
+        width: 80
+        height: 28
+        background-color: #3498db
+        font: verdana-11px-rounded
+        @onClick: modules.game_autoloot.addToBlacklist()
+        $hover:
+          background-color: #5dade2
+      
+      TextEdit
+        id: blacklistInput
+        anchors.left: parent.left
+        anchors.right: addButton.left
+        anchors.bottom: parent.bottom
+        margin-left: 10
+        margin-right: 8
+        margin-bottom: 10
+        height: 28
+        font: verdana-11px-rounded
+        color: #ffffff
+        background-color: #16161e
+    
+    UIWidget
+      id: blacklistItemsPanel
+      anchors.top: inputSection.bottom
+      anchors.left: parent.left
+      anchors.right: parent.right
+      anchors.bottom: blacklistButtons.top
+      margin: 5
+      margin-top: 8
+      background-color: #16161e
+      border: 1 #000000
+      
+      Label
+        !text: tr('Blacklisted Items:')
+        anchors.top: parent.top
+        anchors.left: parent.left
+        margin-top: 8
+        margin-left: 10
+        font: verdana-11px-rounded
+        color: #95a5a6
+      
+      ScrollablePanel
+        id: blacklistItemsList
+        anchors.top: prev.bottom
+        anchors.left: parent.left
+        anchors.right: parent.right
+        anchors.bottom: parent.bottom
+        margin: 8
+        margin-top: 6
+        vertical-scrollbar: blacklistScrollBar
+        layout:
+          type: verticalBox
+          spacing: 0
+      
+      VerticalScrollBar
+        id: blacklistScrollBar
+        anchors.top: blacklistItemsList.top
+        anchors.bottom: blacklistItemsList.bottom
+        anchors.right: parent.right
+        margin-right: 2
+        step: 30
+        pixels-scroll: true
+    
+    Panel
+      id: blacklistButtons
+      anchors.left: parent.left
+      anchors.right: parent.right
+      anchors.bottom: parent.bottom
+      height: 45
+      margin: 5
+      
+      Button
+        id: clearBlacklistBtn
+        !text: tr('Clear Blacklist')
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.verticalCenter: parent.verticalCenter
+        width: 200
+        height: 34
+        background-color: #c0392b
+        font: verdana-11px-rounded
+        @onClick: modules.game_autoloot.clearBlacklist()
+        $hover:
+          background-color: #e74c3c

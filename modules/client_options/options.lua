@@ -9,7 +9,8 @@ panels = {
     interface = nil,
     misc = nil,
     miscHelp = nil,
-    keybindsPanel = nil
+    keybindsPanel = nil,
+    lootStatsPanel = nil
 }
 
 -- Hook into application exit to ensure settings are saved
@@ -63,7 +64,11 @@ local buttons = { {
         text = "UI Sounds",
         open = "UI_Sounds"
     }} ]]
-}, {
+}, {                                              -- <-- DODAJ OD TU
+    text = "Loot Stats",
+    icon = "/mods/loot_stats/ui/img/icon",
+    open = "lootStatsPanel"
+}, {                                              -- <-- DO TU
     text = "Misc.",
     icon = "/images/icons/icon_misc",
     open = "misc",

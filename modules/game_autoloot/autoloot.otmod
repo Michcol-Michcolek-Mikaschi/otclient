@@ -1,0 +1,9 @@
+Module
+  name: game_autoloot
+  description: Advanced Auto Loot System with Blacklist
+  author: Naruto Server
+  website: -
+  sandboxed: true
+  scripts: [ autoloot ]
+  @onLoad: init()
+  @onUnload: terminate()

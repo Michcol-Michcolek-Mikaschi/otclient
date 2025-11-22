@@ -133,6 +133,7 @@ namespace Otc
         Distance,
         Shielding,
         Fishing,
+        Szybkosc,
         CriticalChance,
         CriticalDamage,
         LifeLeechChance,

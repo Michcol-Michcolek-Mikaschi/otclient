@@ -133,8 +133,8 @@ void AttachedEffect::draw(const Point& dest, const bool isOnTop, LightView* ligh
 
                 g_drawPool.addTexturedRect(Rect(point, size), texture, rect, Color::white);
             }
-        } else {
-            getThingType()->draw(point, 0, m_direction, 0, 0, animation, Color::white, drawThing, lightView);
+        } else if (auto* thingType = getThingType()) {
+            thingType->draw(point, 0, m_direction, 0, 0, animation, Color::white, drawThing, lightView);
         }
 
         g_drawPool.setDrawOrder(lastDrawOrder);

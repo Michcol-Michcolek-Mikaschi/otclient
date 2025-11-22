@@ -38,6 +38,10 @@ void Effect::draw(const Point& dest, const bool drawThings, LightView* lightView
     if (!canDraw() || isHided())
         return;
 
+    // Skip drawing if effect has invalid ID
+    if (m_clientId == 0)
+        return;
+
     // It only starts to draw when the first effect as it is about to end.
     if (m_animationTimer.ticksElapsed() < m_timeToStartDrawing)
         return;
@@ -94,6 +98,10 @@ void Effect::draw(const Point& dest, const bool drawThings, LightView* lightView
 
 void Effect::onAppear()
 {
+    // Skip if effect has invalid ID
+    if (m_clientId == 0)
+        return;
+
     if (g_game.getFeature(Otc::GameEnhancedAnimations)) {
         const auto* animator = getThingType()->getIdleAnimator();
         if (!animator)
@@ -119,6 +127,10 @@ void Effect::onAppear()
 
 bool Effect::waitFor(const EffectPtr& effect)
 {
+    // Skip if this effect has invalid ID
+    if (m_clientId == 0)
+        return false;
+
     const ticks_t ticksElapsed = effect->m_animationTimer.ticksElapsed();
     uint16_t minDuration = getIdleAnimator() ? getIdleAnimator()->getMinDuration() : g_gameConfig.getEffectTicksPerFrame();
     minDuration = minDuration * std::max<uint8_t>(getAnimationPhases() / 3, 1);
