@@ -601,7 +601,7 @@ function EnterGame.tryHttpLogin(clientVersion, httpLogin)
 
     if not G.port then
         local isHttps, _ = string.find(host, "https")
-        if not isHttps then
+        if isHttps then
             G.port = 443
         else -- http
             G.port = 80
@@ -609,7 +609,7 @@ function EnterGame.tryHttpLogin(clientVersion, httpLogin)
     end
 
     if not path then
-        path = ""
+        path = "/"
     else
         path = '/' .. path
     end
