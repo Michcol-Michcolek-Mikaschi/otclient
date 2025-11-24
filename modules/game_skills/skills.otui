@@ -220,7 +220,7 @@ MiniWindow
     SkillButton
       id: skillId0
       SkillNameLabel
-        !text: tr('Fist Fighting')
+        !text: tr('Strength')
       SkillValueLabel
       ImageSkill
         image-source: /images/icons/icon_fist
