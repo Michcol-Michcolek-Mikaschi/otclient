@@ -150,7 +150,11 @@ int Thing::getClothSlot() { return getThingType()->getClothSlot(); }
 
 bool Thing::blockProjectile() const { return getThingType()->blockProjectile(); }
 
-bool Thing::isContainer() { return getThingType()->isContainer(); }
+bool Thing::isContainer() const {
+    if (const auto t = getThingType(); t)
+        return t->isContainer();
+    return false;
+}
 
 bool Thing::isTopGround() { return !isCreature() && getThingType()->isTopGround(); }
 bool Thing::isTopGroundBorder() { return !isCreature() && getThingType()->isTopGroundBorder(); }
