@@ -9,14 +9,29 @@ function init()
   connect(g_game, { onGameStart = online,
                     onGameEnd = offline })
   
-  autolootButton = modules.client_topmenu.addRightGameToggleButton('autolootButton', 
-    tr('Auto Loot') .. ' (Ctrl+L)', '/images/topbuttons/autoloot', toggle)
-  autolootButton:setOn(false)
+  -- Dodaj przycisk do panelu głównego (jak game_analyser)
+  autolootButton = modules.game_mainpanel.addToggleButton('autolootButton', 
+    tr('Auto Loot (Ctrl+Shift+L)'),
+    '/images/options/bot',
+    toggle)
   
-  autolootWindow = g_ui.loadUI('autoloot', rootWidget)
-  autolootWindow:hide()
+  if autolootButton then
+    autolootButton:setOn(false)
+  end
   
-  g_keyboard.bindKeyDown('Ctrl+L', toggle)
+  autolootWindow = g_ui.displayUI('autoloot')
+  if autolootWindow then
+    autolootWindow:hide()
+  end
+  
+  -- Użyj Keybind API zamiast g_keyboard (bezpieczniejsze)
+  Keybind.new("Loot", "Toggle Auto Loot", "Ctrl+Shift+L", "")
+  Keybind.bind("Loot", "Toggle Auto Loot", {
+    {
+      type = KEY_DOWN,
+      callback = toggle
+    }
+  })
   
   ProtocolGame.registerExtendedOpcode(200, onExtendedOpcode)
   
@@ -47,14 +62,16 @@ function terminate()
   
   ProtocolGame.unregisterExtendedOpcode(200)
   
-  g_keyboard.unbindKeyDown('Ctrl+L')
+  Keybind.delete("Loot", "Toggle Auto Loot")
   
   if autolootWindow then
     autolootWindow:destroy()
+    autolootWindow = nil
   end
   
   if autolootButton then
     autolootButton:destroy()
+    autolootButton = nil
   end
 end
 
@@ -88,7 +105,11 @@ function offline()
 end
 
 function toggle()
-  if autolootButton:isOn() then
+  if not autolootWindow then
+    return
+  end
+  
+  if autolootButton and autolootButton:isOn() then
     hide()
   else
     show()
@@ -96,17 +117,27 @@ function toggle()
 end
 
 function show()
+  if not autolootWindow then
+    return
+  end
   autolootWindow:show()
   autolootWindow:raise()
   autolootWindow:focus()
-  autolootButton:setOn(true)
+  if autolootButton then
+    autolootButton:setOn(true)
+  end
   -- Request current balance immediately
   requestBankBalance()
 end
 
 function hide()
+  if not autolootWindow then
+    return
+  end
   autolootWindow:hide()
-  autolootButton:setOn(false)
+  if autolootButton then
+    autolootButton:setOn(false)
+  end
 end
 
 function setMode(mode)

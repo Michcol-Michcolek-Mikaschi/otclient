@@ -5,5 +5,7 @@ Module
   website: -
   sandboxed: true
   scripts: [ autoloot ]
+  autoload: true
+  dependencies: [ game_interface, game_mainpanel ]
   @onLoad: init()
   @onUnload: terminate()
