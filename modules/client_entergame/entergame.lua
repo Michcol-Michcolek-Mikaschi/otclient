@@ -509,7 +509,7 @@ function EnterGame.clearAccountFields()
 end
 
 function EnterGame.toggleAuthenticatorToken(clientVersion, init)
-    if not enterGame.disableToken then
+    if enterGame.disableToken then
         return
     end
 
@@ -542,7 +542,7 @@ function EnterGame.toggleAuthenticatorToken(clientVersion, init)
 end
 
 function EnterGame.toggleStayLoggedBox(clientVersion, init)
-    if not enterGame.disableToken then
+    if enterGame.disableToken then
         return
     end
     local enabled = (clientVersion >= 1074)
@@ -633,7 +633,8 @@ function EnterGame.tryHttpLogin(clientVersion, httpLogin)
     G.requestId = math.random(1)
 
     local http = LoginHttp.create()
-        http:httpLogin(host, path, G.port, G.account, G.password, G.requestId, httpLogin)
+        local token = G.authenticatorToken or ""
+        http:httpLogin(host, path, G.port, G.account, G.password, token, G.requestId, httpLogin)
         connect(loadBox, {
             onCancel = function(msgbox)
                 loadBox = nil
