@@ -7,6 +7,10 @@ controller:registerEvents(g_game, {
         -- g_game.enableFeature(GameAllowCustomBotScripts)
 
         g_game.enableFeature(GameFormatCreatureName)
+        
+        -- Enable 16-bit magic effects (for effect IDs > 255)
+        g_game.enableFeature(GameMagicEffectU16)
+        g_game.enableFeature(GameEffectU16)  -- For protocol >= 1203
 
         -- For Walk
         g_game.enableFeature(GameAllowPreWalk)
