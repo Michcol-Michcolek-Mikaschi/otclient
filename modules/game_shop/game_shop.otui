@@ -306,6 +306,14 @@ OfferWidget < FlatPanel
       phantom: true
       animate: true
 
+    UICreature
+      id: auraPreview
+      anchors.fill: parent
+      margin: 3
+      visible: false
+      phantom: true
+      animate: true
+
     UIItem
       id: item
       anchors.centerIn: parent
@@ -324,6 +332,15 @@ OfferWidget < FlatPanel
     text-align: topLeft
     text-wrap: true
     color: #C0C0C0
+
+  Label
+    id: ownedLabel
+    anchors.top: parent.top
+    anchors.right: parent.right
+    margin: 6
+    text: Owned
+    color: #44AD25
+    visible: false
 
 MainWindow
   id: shopWindow
@@ -402,6 +419,18 @@ MainWindow
     color: #C0C0C0
     focusable: false
     @onClick: modules.game_shop.showHistory()
+
+  Button
+    id: myAurasButton
+    !text: 'My Auras'
+    width: 80
+    anchors.top: prev.top
+    anchors.right: prev.left
+    margin-right: 5
+    color: #C0C0C0
+    checkable: true
+    focusable: false
+    @onClick: modules.game_shop.toggleMyAuras()
 
   ShopBalanceWidget
     id: balance
@@ -575,6 +604,15 @@ MainWindow
         margin-top: 3
         color: #C0C0C0
 
+      Label
+        id: ownedBadge
+        anchors.top: parent.top
+        anchors.right: parent.right
+        margin: 5
+        text: Owned
+        color: #44AD25
+        visible: false
+
       FlatPanel
         id: imagePanel
         anchors.top: parent.top
@@ -605,12 +643,39 @@ MainWindow
           visible: false
           animate: true
 
+        UICreature
+          id: auraPreview
+          anchors.fill: parent
+          margin: 5
+          visible: false
+          animate: true
+
         UIItem
           id: item
           anchors.centerIn: parent
           size: 68 68
           virtual: true
           visible: false
+
+        Button
+          id: prevOfferBtn
+          text: <
+          anchors.left: parent.left
+          anchors.verticalcenter: parent.verticalcenter
+          size: 20 40
+          visible: false
+          focusable: false
+          @onClick: modules.game_shop.prevOffer()
+
+        Button
+          id: nextOfferBtn
+          text: >
+          anchors.right: parent.right
+          anchors.verticalcenter: parent.verticalcenter
+          size: 20 40
+          visible: false
+          focusable: false
+          @onClick: modules.game_shop.nextOffer()
 
       OfferBuyButton
         id: buyButton
@@ -650,3 +715,88 @@ MainWindow
         anchors.left: prev.right
         step: 50
         pixels-scroll: true
+
+    FlatPanel
+      id: myAuras
+      anchors.top: parent.top
+      anchors.right: parent.right
+      anchors.left: parent.left
+      anchors.bottom: parent.bottom
+      padding: 10
+      visible: false
+      focusable: false
+
+      Label
+        id: auraTitle
+        anchors.top: parent.top
+        anchors.horizontalCenter: parent.horizontalCenter
+        text: My Auras
+        color: #F0F0F0
+        font: verdana-11px-rounded
+
+      FlatPanel
+        id: auraImagePanel
+        anchors.top: auraTitle.bottom
+        anchors.horizontalcenter: parent.horizontalcenter
+        margin-top: 12
+        size: 140 140
+        image-color: #A0A0A0
+
+        UICreature
+          id: auraCreature
+          anchors.fill: parent
+          margin: 5
+          animate: true
+
+        Button
+          id: prevAuraBtn
+          text: <
+          anchors.left: parent.left
+          anchors.verticalcenter: parent.verticalcenter
+          size: 22 50
+          focusable: false
+          @onClick: modules.game_shop.prevAura()
+
+        Button
+          id: nextAuraBtn
+          text: >
+          anchors.right: parent.right
+          anchors.verticalcenter: parent.verticalcenter
+          size: 22 50
+          focusable: false
+          @onClick: modules.game_shop.nextAura()
+
+      Label
+        id: auraName
+        anchors.top: auraImagePanel.bottom
+        anchors.horizontalcenter: parent.horizontalcenter
+        margin-top: 10
+        color: #FFFFFF
+        font: verdana-11px-rounded
+        text: Fire Aura
+
+      Label
+        id: auraCount
+        anchors.top: auraName.bottom
+        anchors.horizontalcenter: parent.horizontalcenter
+        margin-top: 4
+        text: 1 / 3
+        color: #C0C0C0
+
+      Button
+        id: toggleAuraButton
+        text: Equip
+        anchors.top: auraCount.bottom
+        anchors.horizontalcenter: parent.horizontalcenter
+        margin-top: 15
+        size: 120 28
+        focusable: false
+        @onClick: modules.game_shop.toggleAura()
+
+      Label
+        id: auraEmpty
+        anchors.centerIn: parent
+        color: #808080
+        text: You don't own any auras yet.
+        visible: false
+

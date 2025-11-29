@@ -4,6 +4,8 @@ Module
   author: MatC, Nottinghster
   website: None
   sandboxed: true
+  dependencies:
+    - game_attachedeffects
   scripts: [ game_shop ]
   @onLoad: init()
   @onUnload: terminate()

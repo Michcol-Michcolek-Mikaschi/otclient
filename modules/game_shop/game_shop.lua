@@ -23,8 +23,16 @@ local CATEGORY_BLESSING = 2
 local CATEGORY_OUTFIT = 3
 local CATEGORY_MOUNT = 4
 local CATEGORY_EXTRAS = 5
+local CATEGORY_AURA = 6
 
 local searchResultCategoryId = "Search Results"
+
+-- Aura System Variables
+local ownedAuras = {}
+local equippedAura = 0
+local currentAuraIndex = 1
+local myAurasVisible = false
+local auraEffectIds = {301, 302, 303}  -- Fire, Ice, Lightning
 
 function init()
     connect(
@@ -94,6 +102,12 @@ function onExtendedOpcode(protocol, code, buffer)
         onGameShopUpdateHistory(data)
     elseif action == "msg" then
         onGameShopMsg(data)
+    elseif action == "fetchAuras" then
+        onGameShopFetchAuras(data)
+    elseif action == "equipAura" then
+        onEquipAura(data)
+    elseif action == "unequipAura" then
+        onUnequipAura()
     end
 end
 
@@ -160,6 +174,12 @@ function show()
     gameShopWindow:show()
     gameShopWindow:raise()
     gameShopWindow:focus()
+    
+    -- Fetch owned auras when shop opens
+    local protocolGame = g_game.getProtocolGame()
+    if protocolGame then
+        protocolGame:sendExtendedOpcode(GAME_SHOP_CODE, json.encode({action = "fetchAuras", data = {}}))
+    end
     
     if shopButton then
         shopButton:setOn(true)
@@ -444,18 +464,43 @@ function showOffers(id)
             local item = imagePanel:getChildById("item")
             local outfit = imagePanel:getChildById("outfit")
             local mount = imagePanel:getChildById("mount")
+            local auraPreview = imagePanel:getChildById("auraPreview")
 
             local imageSource = offersCache[i].image
             if not imageSource and type(offersCache[i].id) == "string" then
                 imageSource = offersCache[i].id
             end
 
-            if imageSource then
+            if imageSource and categoryId ~= CATEGORY_AURA then
                 image:show()
                 if not imageSource:match("%.png$") then
                     imageSource = imageSource .. ".png"
                 end
                 image:setImageSource("/game_shop/images/" .. imageSource)
+            elseif categoryId == CATEGORY_AURA then
+                -- Set category ID for updateDescription
+                widget.offerCategoryId = categoryId
+                
+                -- Show creature with aura effect
+                local auraId = offersCache[i].id
+                auraPreview:show()
+                auraPreview:setOutfit(currentOutfit)
+                local auraCreature = auraPreview:getCreature()
+                if auraCreature then
+                    auraCreature:clearAttachedEffects()
+                    if type(auraId) == "number" then
+                        local effect = g_attachedEffects.getById(auraId)
+                        if effect then
+                            auraCreature:attachEffect(effect)
+                        end
+                    end
+                end
+                
+                -- Check if owned and show badge
+                local ownedLabel = widget:getChildById("ownedLabel")
+                if ownedLabel and isAuraOwned(auraId) then
+                    ownedLabel:show()
+                end
             elseif type(offersCache[i].id) == "number" then
                 widget.offerCategoryId = categoryId
                 if categoryId == CATEGORY_ITEM then
@@ -479,6 +524,18 @@ function showOffers(id)
                 selectOffer(widget)
             end
         end
+    end
+    
+    -- Hide My Auras panel when showing offers
+    if myAurasVisible then
+        local offersPanel = gameShopWindow:getChildById("offers")
+        local myAurasPanel = offersPanel:getChildById("myAuras")
+        myAurasPanel:hide()
+        offersPanel:getChildById("offersList"):show()
+        offersPanel:getChildById("offersListScrollBar"):show()
+        offersPanel:getChildById("offerDetails"):show()
+        myAurasVisible = false
+        gameShopWindow:getChildById("myAurasButton"):setChecked(false)
     end
 end
 
@@ -564,14 +621,63 @@ function updateDescription(self)
         detailImage = self.data.id
     end
 
-    if detailImage then
+    -- Obsługa kategorii AURA
+    local auraPreview = imagePanel:getChildById("auraPreview")
+    local ownedBadge = offerDetails:getChildById("ownedBadge")
+    local prevOfferBtn = imagePanel:getChildById("prevOfferBtn")
+    local nextOfferBtn = imagePanel:getChildById("nextOfferBtn")
+    
+    if auraPreview then auraPreview:hide() end
+    if ownedBadge then ownedBadge:hide() end
+    if prevOfferBtn then prevOfferBtn:hide() end
+    if nextOfferBtn then nextOfferBtn:hide() end
+    
+    local categoryId = self.offerCategoryId or self.data.offerCategoryId or self.data.categoryId or self.categoryId
+    
+    if categoryId == CATEGORY_AURA then
+        -- Wyświetl podgląd aury z efektem
+        if auraPreview then
+            auraPreview:show()
+            local playerOutfit = g_game.getLocalPlayer():getOutfit()
+            auraPreview:setOutfit(playerOutfit)
+            
+            -- Przypisz efekt aury
+            local effectId = self.data.id
+            local auraCreature = auraPreview:getCreature()
+            if auraCreature and effectId and g_attachedEffects then
+                auraCreature:clearAttachedEffects()
+                local effect = g_attachedEffects.getById(effectId)
+                if effect then
+                    auraCreature:attachEffect(effect)
+                end
+            end
+        end
+        
+        -- Pokaż strzałki nawigacji
+        if prevOfferBtn then prevOfferBtn:show() end
+        if nextOfferBtn then nextOfferBtn:show() end
+        
+        -- Sprawdź czy aura jest posiadana
+        local owned = isAuraOwned(self.data.id)
+        if owned and ownedBadge then
+            ownedBadge:show()
+        end
+        
+        -- Zmień tekst przycisku
+        if owned then
+            buyButton:setText("Owned")
+            buyButton:setEnabled(false)
+        else
+            buyButton:setText("Buy")
+            buyButton:setEnabled(self.data.price <= globalPoints)
+        end
+    elseif detailImage then
         image:show()
         if not detailImage:match("%.png$") then
             detailImage = detailImage .. ".png"
         end
         image:setImageSource("/game_shop/images/" .. detailImage)
     elseif type(self.data.id) == "number" then
-        local categoryId = self.offerCategoryId or self.data.offerCategoryId
         if table.contains({CATEGORY_ITEM, CATEGORY_EXTRAS}, categoryId) then
             item:show()
             item:setItemId(self.data.id)
@@ -614,6 +720,35 @@ end
 function onOfferBuy(self)
     if not selectedOffer then
         displayInfoBox("Error", "Something went wrong, make sure to select category and offer.")
+        return
+    end
+
+    -- Sprawdź czy to kategoria aury
+    local categoryId = selectedOffer.offerCategoryId or selectedOffer.data.offerCategoryId or selectedOffer.categoryId
+    if categoryId == CATEGORY_AURA then
+        -- Sprawdź czy aura jest już posiadana
+        if isAuraOwned(selectedOffer.data.id) then
+            displayInfoBox("Info", "You already own this aura.")
+            return
+        end
+        
+        hide()
+        
+        local title = "Purchase Aura"
+        local msg = "Do you want to buy " .. selectedOffer.data.name .. " for " .. comma_value(selectedOffer.data.price) .. " points?"
+        
+        msgWindow = displayGeneralBox(
+            title,
+            msg,
+            {
+                {text = "Yes", callback = buyAuraConfirmed},
+                {text = "No", callback = buyCanceled},
+                anchor = AnchorHorizontalCenter
+            },
+            buyAuraConfirmed,
+            buyCanceled
+        )
+        msgWindow.auraId = selectedOffer.data.id
         return
     end
 
@@ -689,6 +824,15 @@ function buyConfirmed()
         )
     end
 
+    msgWindow:destroy()
+    msgWindow = nil
+end
+
+function buyAuraConfirmed()
+    local auraId = msgWindow.auraId
+    if auraId then
+        purchaseAura(auraId)
+    end
     msgWindow:destroy()
     msgWindow = nil
 end
@@ -913,4 +1057,312 @@ function onSearch()
     local children = gameShopWindow:getChildById("categoriesList"):getChildren()
     select(children[#children]:getChildById("button"), true)
     searchTextEdit:clearText()
+end
+
+-- ==================== AURA SYSTEM FUNCTIONS ====================
+
+function onGameShopFetchAuras(data)
+    ownedAuras = {}
+    if data.auras then
+        for _, aura in ipairs(data.auras) do
+            if aura.owned then
+                table.insert(ownedAuras, aura)
+            end
+        end
+    end
+    
+    equippedAura = data.equippedAura or 0
+    
+    -- Always update My Auras panel if visible
+    if myAurasVisible then
+        updateMyAurasPanel()
+    end
+end
+
+function onEquipAura(data)
+    local auraId = data.auraId
+    equippedAura = auraId
+    
+    -- Attach the effect to local player
+    local player = g_game.getLocalPlayer()
+    if player then
+        -- Clear any existing aura effects first by ID
+        for _, effectId in ipairs(auraEffectIds) do
+            player:detachEffectById(effectId)
+        end
+        
+        -- Attach the new aura
+        if auraId > 0 then
+            local effect = g_attachedEffects.getById(auraId)
+            if effect then
+                player:attachEffect(effect)
+            end
+        end
+    end
+    
+    if myAurasVisible then
+        updateMyAurasPanel()
+    end
+end
+
+function onUnequipAura()
+    local player = g_game.getLocalPlayer()
+    if player then
+        -- Clear all aura effects by ID
+        for _, effectId in ipairs(auraEffectIds) do
+            player:detachEffectById(effectId)
+        end
+    end
+    
+    equippedAura = 0
+    
+    if myAurasVisible then
+        updateMyAurasPanel()
+    end
+end
+
+function toggleMyAuras()
+    local offersPanel = gameShopWindow:getChildById("offers")
+    local myAurasPanel = offersPanel:getChildById("myAuras")
+    local historyPanel = gameShopWindow:getChildById("history")
+    local myAurasButton = gameShopWindow:getChildById("myAurasButton")
+    
+    if myAurasVisible then
+        myAurasVisible = false
+        myAurasPanel:hide()
+        offersPanel:getChildById("offersList"):show()
+        offersPanel:getChildById("offersListScrollBar"):show()
+        offersPanel:getChildById("offerDetails"):show()
+        myAurasButton:setChecked(false)
+    else
+        myAurasVisible = true
+        historyPanel:hide()
+        offersPanel:getChildById("offersList"):hide()
+        offersPanel:getChildById("offersListScrollBar"):hide()
+        offersPanel:getChildById("offerDetails"):hide()
+        myAurasPanel:show()
+        myAurasButton:setChecked(true)
+        
+        -- Fetch latest aura data
+        local protocolGame = g_game.getProtocolGame()
+        if protocolGame then
+            protocolGame:sendExtendedOpcode(GAME_SHOP_CODE, json.encode({action = "fetchAuras", data = {}}))
+        end
+        
+        currentAuraIndex = 1
+        updateMyAurasPanel()
+    end
+end
+
+function updateMyAurasPanel()
+    local offersPanel = gameShopWindow:getChildById("offers")
+    local myAurasPanel = offersPanel:getChildById("myAuras")
+    
+    local auraImagePanel = myAurasPanel:getChildById("auraImagePanel")
+    local auraCreature = auraImagePanel:getChildById("auraCreature")
+    local auraName = myAurasPanel:getChildById("auraName")
+    local auraCount = myAurasPanel:getChildById("auraCount")
+    local toggleButton = myAurasPanel:getChildById("toggleAuraButton")
+    local emptyLabel = myAurasPanel:getChildById("auraEmpty")
+    local prevBtn = auraImagePanel:getChildById("prevAuraBtn")
+    local nextBtn = auraImagePanel:getChildById("nextAuraBtn")
+    
+    if #ownedAuras == 0 then
+        emptyLabel:show()
+        auraImagePanel:hide()
+        auraName:hide()
+        auraCount:hide()
+        toggleButton:hide()
+        return
+    end
+    
+    emptyLabel:hide()
+    auraImagePanel:show()
+    auraName:show()
+    auraCount:show()
+    toggleButton:show()
+    
+    -- Clamp index
+    if currentAuraIndex > #ownedAuras then
+        currentAuraIndex = 1
+    end
+    if currentAuraIndex < 1 then
+        currentAuraIndex = #ownedAuras
+    end
+    
+    local currentAura = ownedAuras[currentAuraIndex]
+    
+    -- Setup creature with aura effect
+    auraCreature:show()
+    local player = g_game.getLocalPlayer()
+    if player then
+        auraCreature:setOutfit(player:getOutfit())
+        
+        -- Clear and attach aura effect to preview creature
+        local creature = auraCreature:getCreature()
+        if creature then
+            creature:clearAttachedEffects()
+            local effect = g_attachedEffects.getById(currentAura.id)
+            if effect then
+                creature:attachEffect(effect)
+            end
+        end
+    end
+    
+    auraName:setText(currentAura.name)
+    auraCount:setText(currentAuraIndex .. " / " .. #ownedAuras)
+    
+    -- Show/hide navigation buttons
+    prevBtn:setVisible(#ownedAuras > 1)
+    nextBtn:setVisible(#ownedAuras > 1)
+    
+    -- Update toggle button text
+    if equippedAura == currentAura.id then
+        toggleButton:setText("Unequip")
+    else
+        toggleButton:setText("Equip")
+    end
+end
+
+function prevAura()
+    if #ownedAuras <= 1 then
+        return
+    end
+    
+    currentAuraIndex = currentAuraIndex - 1
+    if currentAuraIndex < 1 then
+        currentAuraIndex = #ownedAuras
+    end
+    
+    updateMyAurasPanel()
+end
+
+function nextAura()
+    if #ownedAuras <= 1 then
+        return
+    end
+    
+    currentAuraIndex = currentAuraIndex + 1
+    if currentAuraIndex > #ownedAuras then
+        currentAuraIndex = 1
+    end
+    
+    updateMyAurasPanel()
+end
+
+function toggleAura()
+    if #ownedAuras == 0 then
+        return
+    end
+    
+    local currentAura = ownedAuras[currentAuraIndex]
+    if not currentAura then
+        return
+    end
+    
+    local protocolGame = g_game.getProtocolGame()
+    if not protocolGame then
+        return
+    end
+    
+    if equippedAura == currentAura.id then
+        -- Unequip
+        protocolGame:sendExtendedOpcode(GAME_SHOP_CODE, json.encode({
+            action = "unequipAura",
+            data = {}
+        }))
+    else
+        -- Equip
+        protocolGame:sendExtendedOpcode(GAME_SHOP_CODE, json.encode({
+            action = "equipAura",
+            data = { auraId = currentAura.id }
+        }))
+    end
+end
+
+function prevOffer()
+    if not selectedOffer or not selectedOffer.categoryId then
+        return
+    end
+    
+    local categoryOffers = offers[selectedOffer.categoryId]
+    if not categoryOffers or #categoryOffers <= 1 then
+        return
+    end
+    
+    local currentIndex = 1
+    for i, offer in ipairs(categoryOffers) do
+        if offer.name == selectedOffer.data.name then
+            currentIndex = i
+            break
+        end
+    end
+    
+    local newIndex = currentIndex - 1
+    if newIndex < 1 then
+        newIndex = #categoryOffers
+    end
+    
+    -- Find and select the offer widget
+    local offersList = gameShopWindow:getChildById("offers"):getChildById("offersList")
+    local children = offersList:getChildren()
+    for _, widget in ipairs(children) do
+        if widget.data and widget.data.name == categoryOffers[newIndex].name then
+            selectOffer(widget)
+            break
+        end
+    end
+end
+
+function nextOffer()
+    if not selectedOffer or not selectedOffer.categoryId then
+        return
+    end
+    
+    local categoryOffers = offers[selectedOffer.categoryId]
+    if not categoryOffers or #categoryOffers <= 1 then
+        return
+    end
+    
+    local currentIndex = 1
+    for i, offer in ipairs(categoryOffers) do
+        if offer.name == selectedOffer.data.name then
+            currentIndex = i
+            break
+        end
+    end
+    
+    local newIndex = currentIndex + 1
+    if newIndex > #categoryOffers then
+        newIndex = 1
+    end
+    
+    -- Find and select the offer widget
+    local offersList = gameShopWindow:getChildById("offers"):getChildById("offersList")
+    local children = offersList:getChildren()
+    for _, widget in ipairs(children) do
+        if widget.data and widget.data.name == categoryOffers[newIndex].name then
+            selectOffer(widget)
+            break
+        end
+    end
+end
+
+function purchaseAura(auraId)
+    local protocolGame = g_game.getProtocolGame()
+    if protocolGame then
+        protocolGame:sendExtendedOpcode(GAME_SHOP_CODE, json.encode({
+            action = "purchaseAura",
+            data = { auraId = auraId }
+        }))
+    end
+end
+
+function isAuraOwned(auraId)
+    for _, aura in ipairs(ownedAuras) do
+        if aura.id == auraId then
+            return true
+        end
+    end
+    return false
 end

@@ -145,3 +145,24 @@ AttachedEffectManager.register(11, 'Bat', 307, ThingCategoryCreature, {
     offset = { 0, 0 },
     bounce = { 20, 20, 2000 }
 })
+
+AttachedEffectManager.register(301, 'Fire Aura', 301, ThingCategoryEffect, {
+    speed = 0.8,
+    drawOnUI = true,
+    opacity = 0.85,
+    offset = { 0, -5, true }
+})
+
+AttachedEffectManager.register(302, 'Ice Aura', 302, ThingCategoryEffect, {
+    speed = 0.8,
+    drawOnUI = true,
+    opacity = 0.85,
+    offset = { 0, -5, true }
+})
+
+AttachedEffectManager.register(303, 'Lightning Aura', 303, ThingCategoryEffect, {
+    speed = 0.7,
+    drawOnUI = true,
+    opacity = 0.9,
+    offset = { 0, -5, true }
+})
