@@ -6,6 +6,7 @@ local offers = {}
 local history = {}
 
 local gameShopWindow = nil
+local shopButton = nil
 local selected = nil
 local selectedOffer = nil
 local changeNameWindow = nil
@@ -35,6 +36,10 @@ function init()
     )
 
     ProtocolGame.registerExtendedOpcode(GAME_SHOP_CODE, onExtendedOpcode)
+    
+    -- Add shop button to right panel
+    shopButton = modules.client_topmenu.addRightGameToggleButton('shopButton', tr('Shop'), '/images/topbuttons/shop', toggle)
+    
     if g_game.isOnline() then
         create()
     end
@@ -50,6 +55,12 @@ function terminate()
     )
 
     ProtocolGame.unregisterExtendedOpcode(GAME_SHOP_CODE, onExtendedOpcode)
+    
+    if shopButton then
+        shopButton:destroy()
+        shopButton = nil
+    end
+    
     destroy()
 end
 
@@ -149,12 +160,28 @@ function show()
     gameShopWindow:show()
     gameShopWindow:raise()
     gameShopWindow:focus()
+    
+    if shopButton then
+        shopButton:setOn(true)
+    end
 end
 
 function hide()
     hideTransferWindow()
     if gameShopWindow then
         gameShopWindow:hide()
+    end
+    
+    if shopButton then
+        shopButton:setOn(false)
+    end
+end
+
+function toggle()
+    if gameShopWindow and gameShopWindow:isVisible() then
+        hide()
+    else
+        show()
     end
 end
 
@@ -418,9 +445,17 @@ function showOffers(id)
             local outfit = imagePanel:getChildById("outfit")
             local mount = imagePanel:getChildById("mount")
 
-            if type(offersCache[i].id) == "string" then
+            local imageSource = offersCache[i].image
+            if not imageSource and type(offersCache[i].id) == "string" then
+                imageSource = offersCache[i].id
+            end
+
+            if imageSource then
                 image:show()
-                image:setImageSource("/game_shop/images/" .. offersCache[i].id)
+                if not imageSource:match("%.png$") then
+                    imageSource = imageSource .. ".png"
+                end
+                image:setImageSource("/game_shop/images/" .. imageSource)
             elseif type(offersCache[i].id) == "number" then
                 widget.offerCategoryId = categoryId
                 if categoryId == CATEGORY_ITEM then
@@ -524,9 +559,17 @@ function updateDescription(self)
     item:hide()
     outfit:hide()
     mount:hide()
-    if type(self.data.id) == "string" then
+    local detailImage = self.data.image
+    if not detailImage and type(self.data.id) == "string" then
+        detailImage = self.data.id
+    end
+
+    if detailImage then
         image:show()
-        image:setImageSource("/game_shop/images/" .. self.data.id)
+        if not detailImage:match("%.png$") then
+            detailImage = detailImage .. ".png"
+        end
+        image:setImageSource("/game_shop/images/" .. detailImage)
     elseif type(self.data.id) == "number" then
         local categoryId = self.offerCategoryId or self.data.offerCategoryId
         if table.contains({CATEGORY_ITEM, CATEGORY_EXTRAS}, categoryId) then
