@@ -45,8 +45,7 @@ function init()
 
     ProtocolGame.registerExtendedOpcode(GAME_SHOP_CODE, onExtendedOpcode)
     
-    -- Add shop button to right panel
-    shopButton = modules.client_topmenu.addRightGameToggleButton('shopButton', tr('Shop'), '/images/topbuttons/shop', toggle)
+    -- Shop button is handled by game_mainpanel (Store button)
     
     if g_game.isOnline() then
         create()
@@ -63,11 +62,6 @@ function terminate()
     )
 
     ProtocolGame.unregisterExtendedOpcode(GAME_SHOP_CODE, onExtendedOpcode)
-    
-    if shopButton then
-        shopButton:destroy()
-        shopButton = nil
-    end
     
     destroy()
 end
@@ -180,20 +174,12 @@ function show()
     if protocolGame then
         protocolGame:sendExtendedOpcode(GAME_SHOP_CODE, json.encode({action = "fetchAuras", data = {}}))
     end
-    
-    if shopButton then
-        shopButton:setOn(true)
-    end
 end
 
 function hide()
     hideTransferWindow()
     if gameShopWindow then
         gameShopWindow:hide()
-    end
-    
-    if shopButton then
-        shopButton:setOn(false)
     end
 end
 
@@ -1072,6 +1058,22 @@ function onGameShopFetchAuras(data)
     end
     
     equippedAura = data.equippedAura or 0
+    
+    -- Apply the aura effect to local player if one is equipped
+    -- This handles the case when player logs in with an active aura
+    local player = g_game.getLocalPlayer()
+    if player and equippedAura > 0 then
+        -- Clear any existing aura effects first
+        for _, effectId in ipairs(auraEffectIds) do
+            player:detachEffectById(effectId)
+        end
+        
+        -- Attach the equipped aura
+        local effect = g_attachedEffects.getById(equippedAura)
+        if effect then
+            player:attachEffect(effect)
+        end
+    end
     
     -- Always update My Auras panel if visible
     if myAurasVisible then

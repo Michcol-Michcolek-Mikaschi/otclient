@@ -1,0 +1,13 @@
+Module
+  name: game_vip_status
+  description: VIP Status System - Shows purple square around VIP players
+  author: Server Admin
+  website: localhost
+  sandboxed: true
+  autoload: true
+  autoload-priority: 1000
+  scripts: [ vip_status ]
+  @onLoad: init()
+  @onUnload: terminate()
+  dependencies:
+    - game_interface

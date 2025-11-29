@@ -644,6 +644,11 @@ void Client::registerLuaFunctions()
     g_lua.bindClassMemberFunction<Creature>("setVocation", &Creature::setVocation);
     g_lua.bindClassMemberFunction<Creature>("getVocation", &Creature::getVocation);
 
+    g_lua.bindClassMemberFunction<Creature>("setNameColor", &Creature::setNameColor);
+    g_lua.bindClassMemberFunction<Creature>("clearNameColor", &Creature::clearNameColor);
+    g_lua.bindClassMemberFunction<Creature>("getNameColor", &Creature::getNameColor);
+    g_lua.bindClassMemberFunction<Creature>("hasCustomNameColor", &Creature::hasCustomNameColor);
+
 #ifdef FRAMEWORK_EDITOR
     g_lua.registerClass<ItemType>();
     g_lua.bindClassMemberFunction<ItemType>("getServerId", &ItemType::getServerId);

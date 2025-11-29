@@ -202,6 +202,11 @@ minHeight,
     void setVocation(uint8_t vocation) { m_vocation = vocation; }
     uint8_t getVocation() { return m_vocation; }
 
+    void setNameColor(const Color& color) { m_nameColor = color; m_hasCustomNameColor = true; }
+    void clearNameColor() { m_nameColor = Color::white; m_hasCustomNameColor = false; }
+    Color getNameColor() const { return m_nameColor; }
+    bool hasCustomNameColor() const { return m_hasCustomNameColor; }
+
 protected:
     virtual void terminateWalk();
     virtual void onWalking() {};
@@ -296,6 +301,8 @@ private:
     Color m_timedSquareColor{ Color::white };
     Color m_staticSquareColor{ Color::white };
     Color m_informationColor{ Color::white };
+    Color m_nameColor{ Color::white };
+    bool m_hasCustomNameColor{ false };
 
     struct
     {
