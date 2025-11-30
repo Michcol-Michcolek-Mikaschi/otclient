@@ -479,6 +479,60 @@ MainWindow
       icon-offset: 1 0
 
   FlatPanel
+    id: accountStatusPanel
+    anchors.left: prev.right
+    anchors.bottom: parent.bottom
+    margin-left: 10
+    size: 180 21
+    image-color: #A0A0A0
+    focusable: false
+
+    Label
+      id: premiumLabel
+      anchors.left: parent.left
+      anchors.verticalcenter: parent.verticalcenter
+      margin-left: 5
+      text: PACC:
+      color: #888888
+      font: verdana-11px-rounded
+      text-auto-resize: true
+
+    Label
+      id: premiumDays
+      anchors.left: prev.right
+      anchors.verticalcenter: parent.verticalcenter
+      margin-left: 2
+      text: 0d
+      color: #FFD700
+      font: verdana-11px-rounded
+      text-auto-resize: true
+
+    VerticalSeparator
+      anchors.top: parent.top
+      anchors.bottom: parent.bottom
+      anchors.horizontalcenter: parent.horizontalcenter
+
+    Label
+      id: vipLabelText
+      anchors.left: prev.right
+      anchors.verticalcenter: parent.verticalcenter
+      margin-left: 5
+      text: VIP:
+      color: #888888
+      font: verdana-11px-rounded
+      text-auto-resize: true
+
+    Label
+      id: vipDays
+      anchors.left: prev.right
+      anchors.verticalcenter: parent.verticalcenter
+      margin-left: 2
+      text: 0d
+      color: #9370DB
+      font: verdana-11px-rounded
+      text-auto-resize: true
+
+  FlatPanel
     id: history
     anchors.top: parent.top
     anchors.right: parent.right

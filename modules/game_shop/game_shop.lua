@@ -34,6 +34,10 @@ local currentAuraIndex = 1
 local myAurasVisible = false
 local auraEffectIds = {301, 302, 303}  -- Fire, Ice, Lightning
 
+-- Account Status Variables
+local premiumDaysCount = 0
+local vipDaysCount = 0
+
 function init()
     connect(
         g_game,
@@ -102,6 +106,8 @@ function onExtendedOpcode(protocol, code, buffer)
         onEquipAura(data)
     elseif action == "unequipAura" then
         onUnequipAura()
+    elseif action == "accountStatus" then
+        onAccountStatusUpdate(data)
     end
 end
 
@@ -169,10 +175,11 @@ function show()
     gameShopWindow:raise()
     gameShopWindow:focus()
     
-    -- Fetch owned auras when shop opens
+    -- Fetch owned auras and account status when shop opens
     local protocolGame = g_game.getProtocolGame()
     if protocolGame then
         protocolGame:sendExtendedOpcode(GAME_SHOP_CODE, json.encode({action = "fetchAuras", data = {}}))
+        protocolGame:sendExtendedOpcode(GAME_SHOP_CODE, json.encode({action = "getAccountStatus", data = {}}))
     end
 end
 
@@ -1046,6 +1053,63 @@ function onSearch()
 end
 
 -- ==================== AURA SYSTEM FUNCTIONS ====================
+
+-- ==================== ACCOUNT STATUS FUNCTIONS ====================
+
+function onAccountStatusUpdate(data)
+    premiumDaysCount = data.premiumDays or 0
+    vipDaysCount = data.vipDays or 0
+    updateAccountStatusDisplay()
+end
+
+function updateAccountStatusDisplay()
+    if not gameShopWindow then
+        return
+    end
+    
+    local statusPanel = gameShopWindow:getChildById("accountStatusPanel")
+    if not statusPanel then
+        return
+    end
+    
+    local premiumLabel = statusPanel:getChildById("premiumDays")
+    local vipLabel = statusPanel:getChildById("vipDays")
+    local premiumText = statusPanel:getChildById("premiumLabel")
+    local vipText = statusPanel:getChildById("vipLabelText")
+    
+    if premiumLabel then
+        if premiumDaysCount > 0 then
+            premiumLabel:setText(premiumDaysCount .. "d")
+            premiumLabel:setColor("#44AD25")  -- Green for active
+            if premiumText then premiumText:setColor("#44AD25") end
+        else
+            premiumLabel:setText("0d")
+            premiumLabel:setColor("#808080")  -- Gray for inactive
+            if premiumText then premiumText:setColor("#808080") end
+        end
+    end
+    
+    if vipLabel then
+        if vipDaysCount > 0 then
+            vipLabel:setText(vipDaysCount .. "d")
+            vipLabel:setColor("#9370DB")  -- Purple for active VIP
+            if vipText then vipText:setColor("#9370DB") end
+        else
+            vipLabel:setText("0d")
+            vipLabel:setColor("#808080")  -- Gray for inactive
+            if vipText then vipText:setColor("#808080") end
+        end
+    end
+end
+
+function requestAccountStatus()
+    local protocolGame = g_game.getProtocolGame()
+    if protocolGame then
+        protocolGame:sendExtendedOpcode(GAME_SHOP_CODE, json.encode({action = "getAccountStatus", data = {}}))
+    end
+end
+
+-- ==================== AURA FUNCTIONS ====================
 
 function onGameShopFetchAuras(data)
     ownedAuras = {}
