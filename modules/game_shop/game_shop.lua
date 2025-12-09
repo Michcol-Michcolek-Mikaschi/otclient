@@ -32,7 +32,18 @@ local ownedAuras = {}
 local equippedAura = 0
 local currentAuraIndex = 1
 local myAurasVisible = false
-local auraEffectIds = {301, 302, 303}  -- Fire, Ice, Lightning
+local auraEffectIds = {
+    301, 302, 303,  -- Fire, Ice, Lightning (podstawowe)
+    176, 177, 178, 179, 180, 181,  -- Shop Auras
+    316, 330, 334, 338, 339, 346, 350, 364, 366, 370,
+    388, 403, 405, 406, 407, 410, 411, 412, 416, 417,
+    436, 438, 439, 447, 448, 449, 450, 456, 457, 458,
+    459, 461, 466, 468, 477, 488, 489, 490, 498, 499,
+    500, 501, 511, 514, 516, 517, 520, 523, 529, 530,
+    531, 532, 533, 534, 535, 539, 540, 543, 544, 545,
+    548, 559, 565, 566, 636, 659, 896, 898, 935, 954,
+    955, 960, 962, 965, 985, 986, 987, 988, 990, 991, 1070
+}
 
 -- Account Status Variables
 local premiumDaysCount = 0
@@ -151,6 +162,9 @@ function destroy()
 end
 
 function onGameShopFetchBase(data)
+    -- Clear offers when receiving new base data (shop refresh)
+    offers = {}
+    
     for i = 1, #data.categories do
         addCategory(data.categories[i])
     end
@@ -297,7 +311,14 @@ function buyPoints()
 end
 
 function onGameShopFetchOffers(data)
-    offers[data.category] = data.offers
+    -- Append offers instead of replacing (supports chunked sending from server)
+    if not offers[data.category] then
+        offers[data.category] = {}
+    end
+    for _, offer in ipairs(data.offers) do
+        table.insert(offers[data.category], offer)
+    end
+    
     if not selected and data.category == "Premium Time" then
         select(gameShopWindow:getChildById("categoriesList"):getChildren()[1]:getChildById("button"))
     end
@@ -1113,7 +1134,27 @@ end
 
 function onGameShopFetchAuras(data)
     ownedAuras = {}
-    if data.auras then
+    
+    -- New format: server sends only owned aura IDs
+    if data.ownedIds then
+        -- Create lookup table for owned IDs
+        local ownedLookup = {}
+        for _, id in ipairs(data.ownedIds) do
+            ownedLookup[id] = true
+        end
+        
+        -- Build ownedAuras list from local auraEffectIds
+        for _, effectId in ipairs(auraEffectIds) do
+            if ownedLookup[effectId] then
+                table.insert(ownedAuras, {
+                    id = effectId,
+                    name = "Aura " .. effectId,
+                    owned = true
+                })
+            end
+        end
+    -- Legacy format: server sends full auras list
+    elseif data.auras then
         for _, aura in ipairs(data.auras) do
             if aura.owned then
                 table.insert(ownedAuras, aura)

@@ -94,6 +94,7 @@ local CATEGORY_BLESSING = 2
 local CATEGORY_OUTFIT = 3
 local CATEGORY_MOUNT = 4
 local CATEGORY_EXTRAS = 5
+local CATEGORY_AURA = 6
 
 local HEALTH_POTION_DESCRIPTION = "Restores your character's hit points.\n\n- only usable by purchasing character\n- will be sent to your backpack\n- cannot be purchased by characters with protection zone block or battle sign\n- cannot be purchased if capacity is exceeded"
 local MANA_POTION_DESCRIPTION = "Refills your character's mana.\n\n- only usable by purchasing character\n- will be sent to your backpack\n- cannot be purchased by characters with protection zone block or battle sign\n- cannot be purchased if capacity is exceeded"
@@ -398,6 +399,97 @@ function gameShopInitialize()
 	addOutfit("Retro Summoner Outfit", {male = 964, female = 965}, 870, false, 0, "- only usable by purchasing character\n- colours can be changed using the Outfit dialog\n- includes basic outfit and 2 addons which can be selected individually\n\nWhile the Retro Mage usually throws runes and mighty spells directly at the enemies, the Retro Summoner outfit might be the better choice for Tibians that prefer to send mighty summons to the battlefield to keep their enemies at distance.")
 	addOutfit("Retro Warrior Outfit", {male = 962, female = 963}, 870, false, 0, "- only usable by purchasing character\n- colours can be changed using the Outfit dialog\n- includes basic outfit and 2 addons which can be selected individually\n\nYou are fearless and strong as a behemoth but have problems finding the right outfit for your adventures? The Retro Warrior outfit is a must-have for all fashion-conscious old-school Tibians out there.")
 	
+	-- Auras Category
+	addCategory("Cosmetics", "Auras", 22, CATEGORY_AURA)
+	local AURA_DESCRIPTION = "A special visual aura effect that surrounds your character.\n\n- only usable by purchasing character\n- can be equipped/unequipped at any time\n- visual effect only, no stat bonuses"
+	addAura("Aura Effect 176", 176, 500, false, AURA_DESCRIPTION)
+	addAura("Aura Effect 177", 177, 500, false, AURA_DESCRIPTION)
+	addAura("Aura Effect 178", 178, 500, false, AURA_DESCRIPTION)
+	addAura("Aura Effect 179", 179, 500, false, AURA_DESCRIPTION)
+	addAura("Aura Effect 180", 180, 500, false, AURA_DESCRIPTION)
+	addAura("Aura Effect 181", 181, 500, false, AURA_DESCRIPTION)
+	addAura("Aura Effect 316", 316, 500, false, AURA_DESCRIPTION)
+	addAura("Aura Effect 330", 330, 500, false, AURA_DESCRIPTION)
+	addAura("Aura Effect 334", 334, 500, false, AURA_DESCRIPTION)
+	addAura("Aura Effect 338", 338, 500, false, AURA_DESCRIPTION)
+	addAura("Aura Effect 339", 339, 500, false, AURA_DESCRIPTION)
+	addAura("Aura Effect 346", 346, 500, false, AURA_DESCRIPTION)
+	addAura("Aura Effect 350", 350, 500, false, AURA_DESCRIPTION)
+	addAura("Aura Effect 364", 364, 500, false, AURA_DESCRIPTION)
+	addAura("Aura Effect 366", 366, 500, false, AURA_DESCRIPTION)
+	addAura("Aura Effect 370", 370, 500, false, AURA_DESCRIPTION)
+	addAura("Aura Effect 388", 388, 500, false, AURA_DESCRIPTION)
+	addAura("Aura Effect 403", 403, 500, false, AURA_DESCRIPTION)
+	addAura("Aura Effect 405", 405, 500, false, AURA_DESCRIPTION)
+	addAura("Aura Effect 406", 406, 500, false, AURA_DESCRIPTION)
+	addAura("Aura Effect 407", 407, 500, false, AURA_DESCRIPTION)
+	addAura("Aura Effect 410", 410, 500, false, AURA_DESCRIPTION)
+	addAura("Aura Effect 411", 411, 500, false, AURA_DESCRIPTION)
+	addAura("Aura Effect 412", 412, 500, false, AURA_DESCRIPTION)
+	addAura("Aura Effect 416", 416, 500, false, AURA_DESCRIPTION)
+	addAura("Aura Effect 417", 417, 500, false, AURA_DESCRIPTION)
+	addAura("Aura Effect 436", 436, 500, false, AURA_DESCRIPTION)
+	addAura("Aura Effect 438", 438, 500, false, AURA_DESCRIPTION)
+	addAura("Aura Effect 439", 439, 500, false, AURA_DESCRIPTION)
+	addAura("Aura Effect 447", 447, 500, false, AURA_DESCRIPTION)
+	addAura("Aura Effect 448", 448, 500, false, AURA_DESCRIPTION)
+	addAura("Aura Effect 449", 449, 500, false, AURA_DESCRIPTION)
+	addAura("Aura Effect 450", 450, 500, false, AURA_DESCRIPTION)
+	addAura("Aura Effect 456", 456, 500, false, AURA_DESCRIPTION)
+	addAura("Aura Effect 457", 457, 500, false, AURA_DESCRIPTION)
+	addAura("Aura Effect 458", 458, 500, false, AURA_DESCRIPTION)
+	addAura("Aura Effect 459", 459, 500, false, AURA_DESCRIPTION)
+	addAura("Aura Effect 461", 461, 500, false, AURA_DESCRIPTION)
+	addAura("Aura Effect 466", 466, 500, false, AURA_DESCRIPTION)
+	addAura("Aura Effect 468", 468, 500, false, AURA_DESCRIPTION)
+	addAura("Aura Effect 477", 477, 500, false, AURA_DESCRIPTION)
+	addAura("Aura Effect 488", 488, 500, false, AURA_DESCRIPTION)
+	addAura("Aura Effect 489", 489, 500, false, AURA_DESCRIPTION)
+	addAura("Aura Effect 490", 490, 500, false, AURA_DESCRIPTION)
+	addAura("Aura Effect 498", 498, 500, false, AURA_DESCRIPTION)
+	addAura("Aura Effect 499", 499, 500, false, AURA_DESCRIPTION)
+	addAura("Aura Effect 500", 500, 500, false, AURA_DESCRIPTION)
+	addAura("Aura Effect 501", 501, 500, false, AURA_DESCRIPTION)
+	addAura("Aura Effect 511", 511, 500, false, AURA_DESCRIPTION)
+	addAura("Aura Effect 514", 514, 500, false, AURA_DESCRIPTION)
+	addAura("Aura Effect 516", 516, 500, false, AURA_DESCRIPTION)
+	addAura("Aura Effect 517", 517, 500, false, AURA_DESCRIPTION)
+	addAura("Aura Effect 520", 520, 500, false, AURA_DESCRIPTION)
+	addAura("Aura Effect 523", 523, 500, false, AURA_DESCRIPTION)
+	addAura("Aura Effect 529", 529, 500, false, AURA_DESCRIPTION)
+	addAura("Aura Effect 530", 530, 500, false, AURA_DESCRIPTION)
+	addAura("Aura Effect 531", 531, 500, false, AURA_DESCRIPTION)
+	addAura("Aura Effect 532", 532, 500, false, AURA_DESCRIPTION)
+	addAura("Aura Effect 533", 533, 500, false, AURA_DESCRIPTION)
+	addAura("Aura Effect 534", 534, 500, false, AURA_DESCRIPTION)
+	addAura("Aura Effect 535", 535, 500, false, AURA_DESCRIPTION)
+	addAura("Aura Effect 539", 539, 500, false, AURA_DESCRIPTION)
+	addAura("Aura Effect 540", 540, 500, false, AURA_DESCRIPTION)
+	addAura("Aura Effect 543", 543, 500, false, AURA_DESCRIPTION)
+	addAura("Aura Effect 544", 544, 500, false, AURA_DESCRIPTION)
+	addAura("Aura Effect 545", 545, 500, false, AURA_DESCRIPTION)
+	addAura("Aura Effect 548", 548, 500, false, AURA_DESCRIPTION)
+	addAura("Aura Effect 559", 559, 500, false, AURA_DESCRIPTION)
+	addAura("Aura Effect 565", 565, 500, false, AURA_DESCRIPTION)
+	addAura("Aura Effect 566", 566, 500, false, AURA_DESCRIPTION)
+	addAura("Aura Effect 636", 636, 500, false, AURA_DESCRIPTION)
+	addAura("Aura Effect 659", 659, 500, false, AURA_DESCRIPTION)
+	addAura("Aura Effect 896", 896, 500, false, AURA_DESCRIPTION)
+	addAura("Aura Effect 898", 898, 500, false, AURA_DESCRIPTION)
+	addAura("Aura Effect 935", 935, 500, false, AURA_DESCRIPTION)
+	addAura("Aura Effect 954", 954, 500, false, AURA_DESCRIPTION)
+	addAura("Aura Effect 955", 955, 500, false, AURA_DESCRIPTION)
+	addAura("Aura Effect 960", 960, 500, false, AURA_DESCRIPTION)
+	addAura("Aura Effect 962", 962, 500, false, AURA_DESCRIPTION)
+	addAura("Aura Effect 965", 965, 500, false, AURA_DESCRIPTION)
+	addAura("Aura Effect 985", 985, 500, false, AURA_DESCRIPTION)
+	addAura("Aura Effect 986", 986, 500, false, AURA_DESCRIPTION)
+	addAura("Aura Effect 987", 987, 500, false, AURA_DESCRIPTION)
+	addAura("Aura Effect 988", 988, 500, false, AURA_DESCRIPTION)
+	addAura("Aura Effect 990", 990, 500, false, AURA_DESCRIPTION)
+	addAura("Aura Effect 991", 991, 500, false, AURA_DESCRIPTION)
+	addAura("Aura Effect 1070", 1070, 500, false, AURA_DESCRIPTION)
+
 	addCategory(nil, "Boosts", 17, CATEGORY_EXTRAS)
 	addItem("Boosts", "XP Boost", "XP_Boost", 30, false, 1, "Purchase a boost that increases the experience points your character gains from hunting by 50%!\n\n* only usable by purchasing character\n* lasts for 1 hour hunting time\n* paused if stamina falls under 14 hours\n* cannot be purchased if an XP boost is already active")
 
@@ -466,6 +558,24 @@ function addOutfit(name, ids, price, isSecondPrice, count, description)
         count = count,
         description = description,
         categoryId = GAME_SHOP.categoriesId[parent]
+    })
+end
+
+function addAura(name, id, price, isSecondPrice, description)
+    local parent = "Auras"
+    if not GAME_SHOP.offers[parent] then
+        GAME_SHOP.offers[parent] = {}
+    end
+	
+    table.insert(GAME_SHOP.offers[parent], {
+        parent = parent,
+        name = name,
+        id = id,
+        price = price,
+        isSecondPrice = isSecondPrice,
+        count = 1,
+        description = description,
+        categoryId = CATEGORY_AURA
     })
 end
 
@@ -565,6 +675,8 @@ function finalizePurchase(player, offer)
 		return defaultMountCallback(player, offer)
 	elseif categoryId == CATEGORY_EXTRAS then
 		return defaultExtrasCallback(player, offer)
+	elseif categoryId == CATEGORY_AURA then
+		return defaultAuraCallback(player, offer)
 	end
 
 	return "Something went wrong, try again or contact server admin [#2]!"
@@ -653,6 +765,44 @@ function defaultMountCallback(player, offer)
 		return "Something went wrong, mount cannot be added."
 	end
 
+	return false
+end
+
+function defaultAuraCallback(player, offer)
+	-- Get the aura ID from the offer
+	local auraId = offer.id
+	if type(auraId) ~= "number" then
+		-- Try to extract ID from name if not directly available
+		auraId = tonumber(string.match(offer.name, "%d+"))
+	end
+	
+	if not auraId then
+		return "Something went wrong, aura ID not found."
+	end
+	
+	-- Check if player already owns this aura
+	local playerId = player:getGuid()
+	local resultId = db.storeQuery("SELECT `id` FROM `player_auras` WHERE `player_id` = " .. playerId .. " AND `aura_id` = " .. auraId)
+	if resultId ~= false then
+		result.free(resultId)
+		return "You already own this aura."
+	end
+	
+	-- Add aura to player
+	db.query("INSERT INTO `player_auras` (`player_id`, `aura_id`) VALUES (" .. playerId .. ", " .. auraId .. ")")
+	
+	-- Send updated aura list to client
+	local ownedAuras = {}
+	resultId = db.storeQuery("SELECT `aura_id` FROM `player_auras` WHERE `player_id` = " .. playerId)
+	if resultId ~= false then
+		repeat
+			table.insert(ownedAuras, result.getDataInt(resultId, "aura_id"))
+		until not result.next(resultId)
+		result.free(resultId)
+	end
+	
+	player:sendExtendedOpcode(ExtendedOPCodes.CODE_GAMESHOP, json.encode({action = "fetchAuras", data = {owned = ownedAuras, equipped = 0}}))
+	
 	return false
 end
 
