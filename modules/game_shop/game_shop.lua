@@ -1473,3 +1473,26 @@ function isAuraOwned(auraId)
     end
     return false
 end
+
+function openCategory(categoryId)
+    if not gameShopWindow then
+        create()
+    end
+    
+    if not gameShopWindow:isVisible() then
+        gameShopWindow:show()
+        gameShopWindow:raise()
+        gameShopWindow:focus()
+    end
+    
+    -- Find category widget
+    local categoriesList = gameShopWindow:getChildById("categories"):getChildById("categoriesList")
+    local children = categoriesList:getChildren()
+    
+    for _, widget in ipairs(children) do
+        if widget.data and widget.data.categoryId == categoryId then
+            selectCategory(widget)
+            break
+        end
+    end
+end

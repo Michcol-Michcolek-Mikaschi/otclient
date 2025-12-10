@@ -80,8 +80,8 @@ XpBoostButton < UIWidget
     anchors.top: prev.bottom
     margin-top : -7
     @onClick: |
-      modules.game_store.toggle()
-      g_game.sendRequestStorePremiumBoost()
+      modules.game_shop.toggle()
+      modules.game_shop.openCategory(5) -- Boost category
     $pressed:
       image-source: /images/ui/button-storexp-pressed
 
