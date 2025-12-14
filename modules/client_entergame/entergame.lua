@@ -596,23 +596,30 @@ function EnterGame.tryHttpLogin(clientVersion, httpLogin)
         return
     end
 
-    local host, path = G.host:match("([^/]+)/([^/].*)")
-    local url = G.host
+    local host = G.host
+    local path = "api/login"
 
-    if not G.port then
-        local isHttps, _ = string.find(host, "https")
-        if isHttps then
-            G.port = 443
-        else -- http
-            G.port = 80
-        end
+    -- Remove protocol if present and set port
+    if host:find("https://") then
+        host = host:gsub("https://", "")
+        if not G.port or G.port == 7171 then G.port = 443 end
+    elseif host:find("http://") then
+        host = host:gsub("http://", "")
+        if not G.port or G.port == 7171 then G.port = 80 end
     end
 
-    if not path then
-        path = "/"
-    else
-        path = '/' .. path
+    -- Separate host and path
+    local slashIndex = host:find("/")
+    if slashIndex then
+        path = host:sub(slashIndex + 1)
+        host = host:sub(1, slashIndex - 1)
     end
+
+    -- Ensure path starts with /
+    if path:sub(1, 1) ~= "/" then
+        path = "/" .. path
+    end
+
 
     if not host then
         loadBox = displayCancelBox(tr('Please wait'), tr('ERROR , try adding \n- ip/login.php \n- Enable HTTP login'))
@@ -792,6 +799,27 @@ function EnterGame.displayMotd()
     end
 end
 
+function EnterGame.onLocalServerChange(checked)
+    local hostTextEdit = enterGame:getChildById('serverHostTextEdit')
+    local portTextEdit = enterGame:getChildById('serverPortTextEdit')
+
+    if checked then
+        hostTextEdit:setText("https://localhost/login.php")
+        portTextEdit:setText("443")
+    else
+        if Servers_init and table.size(Servers_init) == 1 then
+            local hostInit, valuesInit = next(Servers_init)
+            hostTextEdit:setText(hostInit)
+            portTextEdit:setText(valuesInit.port)
+        else
+            local host = g_settings.get('host')
+            local port = g_settings.get('port')
+            hostTextEdit:setText(host)
+            portTextEdit:setText(port)
+        end
+    end
+end
+
 function EnterGame.setDefaultServer(host, port, protocol)
     local hostTextEdit = enterGame:getChildById('serverHostTextEdit')
     local portTextEdit = enterGame:getChildById('serverPortTextEdit')
@@ -865,7 +893,7 @@ function EnterGame.setUniqueServer(host, port, protocol, windowWidth, windowHeig
     end
     enterGame:setWidth(windowWidth)
     if not windowHeight then
-        windowHeight = 210
+        windowHeight = 235
     end
 
     enterGame:setHeight(windowHeight)

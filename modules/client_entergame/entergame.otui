@@ -236,6 +236,16 @@ EnterGameWindow
     anchors.top: prev.bottom
     margin-top: 2
 
+  QtCheckBox
+    id: localServerBox
+    !text: tr('Local Server')
+    !tooltip: tr('Connect to localhost')
+    anchors.left: parent.left
+    anchors.right: parent.right
+    anchors.top: prev.bottom
+    margin-top: 2
+    @onCheckChange: EnterGame.onLocalServerChange(self:isChecked())
+
   HorizontalSeparator
     anchors.left: parent.left
     anchors.right: parent.right
