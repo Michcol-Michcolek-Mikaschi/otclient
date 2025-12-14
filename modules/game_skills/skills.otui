@@ -230,7 +230,7 @@ MiniWindow
     SkillButton
       id: skillId1
       SkillNameLabel
-        !text: tr('Club Fighting')
+        !text: tr('Chakra Control')
       SkillValueLabel
       ImageSkill
         image-source: /images/icons/icon_club
@@ -250,7 +250,7 @@ MiniWindow
     SkillButton
       id: skillId3
       SkillNameLabel
-        !text: tr('Axe Fighting')
+        !text: tr('Energy')
       SkillValueLabel
       ImageSkill
         image-source: /images/icons/icon_axe
@@ -270,7 +270,7 @@ MiniWindow
     SkillButton
       id: skillId5
       SkillNameLabel
-        !text: tr('Shielding')
+        !text: tr('Defense')
       SkillValueLabel
       ImageSkill
         image-source: /images/icons/icon_shielding
@@ -693,7 +693,7 @@ SkillsListSubMenu < PopupMenu
   
   SkillsSubMenuOption
     id: showShielding
-    !text: tr('Shielding')
+    !text: tr('Defense')
 
   SkillsSubMenuOption
     id: showFishing
