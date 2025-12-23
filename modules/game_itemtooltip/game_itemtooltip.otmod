@@ -1,0 +1,11 @@
+Module
+  name: game_itemtooltip
+  description: Displays item tooltips with stats
+  author: Copilot
+  website: 
+  sandboxed: true
+  autoload: true
+  autoload-priority: 1000
+  scripts: [ game_itemtooltip ]
+  @onLoad: init()
+  @onUnload: terminate()

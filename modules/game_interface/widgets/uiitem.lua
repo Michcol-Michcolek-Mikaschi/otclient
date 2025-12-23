@@ -93,7 +93,9 @@ function UIItem:onDestroy()
 end
 
 function UIItem:onHoverChange(hovered)
-    UIWidget.onHoverChange(self, hovered)
+    if type(UIWidget.onHoverChange) == 'table' then
+        signalcall(UIWidget.onHoverChange, self, hovered)
+    end
 
     if self:isVirtual() or not self:isDraggable() then
         UIDragIcon:hide()
