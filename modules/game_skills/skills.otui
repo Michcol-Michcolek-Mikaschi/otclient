@@ -142,6 +142,13 @@ MiniWindow
         !text: tr('XP Gain Rate')
       SkillValueLabel
 
+    SkillButton
+      id: karma
+      height: 15
+      SkillNameLabel
+        !text: tr('Karma')
+      SkillValueLabel
+
     XpBoostButton
       id: xpBoos
 

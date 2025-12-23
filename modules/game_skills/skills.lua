@@ -4,6 +4,13 @@ skillsSettings = nil
 local ExpRating = {}
 local smallSkillsCache = {}
 
+local KARMA_OPCODE = 203
+local karmaPercent = 0
+local requestKarma
+local updateKarmaUI
+local deathKarmaRequestEvent = nil
+local lastHealthValue = nil
+
 -- Cache for stats data when UI elements are hidden
 local statsCache = {
     flatDamageHealing = 0,
@@ -99,11 +106,17 @@ function init()
         onGameEnd = offline
     })
 
+    ProtocolGame.registerExtendedOpcode(KARMA_OPCODE, onKarmaExtendedOpcode)
+
     skillsButton = modules.game_mainpanel.addToggleButton('skillsButton', tr('Skills') .. ' (Alt+S)',
                                                                    '/images/options/button_skills', toggle, false, 1)
     skillsButton:setOn(true)
     skillsWindow = g_ui.loadUI('skills')
     skillsWindow:setContentMinimumHeight(80)
+
+    -- Initialize karma display
+    karmaPercent = 0
+    updateKarmaUI()
 
     Keybind.new("Windows", "Show/hide skills windows", "Alt+S", "")
     Keybind.bind("Windows", "Show/hide skills windows", {
@@ -158,12 +171,68 @@ function terminate()
         onGameEnd = offline
     })
 
+    ProtocolGame.unregisterExtendedOpcode(KARMA_OPCODE)
+
     Keybind.delete("Windows", "Show/hide skills windows")
     skillsWindow:destroy()
     skillsButton:destroy()
 
     skillsWindow = nil
     skillsButton = nil
+end
+
+requestKarma = function()
+    if not g_game.isOnline() then
+        return
+    end
+
+    local protocolGame = g_game.getProtocolGame()
+    if protocolGame then
+        protocolGame:sendExtendedOpcode(KARMA_OPCODE, "request")
+    end
+end
+
+updateKarmaUI = function()
+    local text = string.format("%d%%", karmaPercent)
+    setSkillValue('karma', text)
+
+    local color = '#C0C0C0'
+    if karmaPercent > 0 then
+        color = '#00cc00'
+    elseif karmaPercent < 0 then
+        color = '#ff4a4a'
+    end
+    setSkillColor('karma', color)
+
+    local tooltip = string.format(
+        "Karma balance: %d%%\n\n" ..
+        "Progress: every 100,000 EXP gained = +1%% karma (works for negative, neutral and positive karma).\n" ..
+        "Bonus: if karma is positive, you gain +100 EXP per second for each +1%% karma.\n\n" ..
+        "Death: every death reduces karma by -25%% (down to -100%%).\n" ..
+        "Neutral/Good (>=0%%): no EXP/level loss on death.\n" ..
+        "Bad (<0%%): EXP/level loss per death (skills never drop):\n" ..
+        "- -1%% to -20%%: 1%%\n" ..
+        "- -21%% to -40%%: 2%%\n" ..
+        "- -41%% to -60%%: 3%%\n" ..
+        "- -61%% to -80%%: 4%%\n" ..
+        "- -81%% to -100%%: 5%%",
+        karmaPercent
+    )
+    setSkillTooltip('karma', tooltip)
+end
+
+function onKarmaExtendedOpcode(protocol, opcode, buffer)
+    if opcode ~= KARMA_OPCODE then
+        return
+    end
+
+    local value = tonumber(buffer)
+    if value == nil then
+        return
+    end
+
+    karmaPercent = math.floor(value)
+    updateKarmaUI()
 end
 
 local SKILL_GROUPS = {
@@ -779,6 +848,8 @@ function online()
     skillsWindow:setupOnStart()
     refresh()
 
+    requestKarma()
+
     local newWindowButton = skillsWindow:recursiveGetChildById('newWindowButton')
     if g_game.getClientVersion() < 1310 and newWindowButton then
         newWindowButton:setVisible(false)
@@ -986,6 +1057,9 @@ function offline()
     end
     resetTable(statsCache)
     g_settings.setNode('skills-hide', skillSettings)
+
+    karmaPercent = 0
+    updateKarmaUI()
 end
 
 function toggle()
@@ -1120,6 +1194,21 @@ end
 function onHealthChange(localPlayer, health, maxHealth)
     setSkillValue('health', comma_value(health))
     checkAlert('health', health, maxHealth, 30)
+
+    -- After death (HP reaches 0), request karma again.
+    -- This covers servers that don't fully reconnect on death (relogin window).
+    if health == 0 and lastHealthValue ~= 0 then
+        if deathKarmaRequestEvent then
+            removeEvent(deathKarmaRequestEvent)
+            deathKarmaRequestEvent = nil
+        end
+
+        deathKarmaRequestEvent = scheduleEvent(function()
+            requestKarma()
+            deathKarmaRequestEvent = nil
+        end, 1500)
+    end
+    lastHealthValue = health
 end
 
 function onManaChange(localPlayer, mana, maxMana)
