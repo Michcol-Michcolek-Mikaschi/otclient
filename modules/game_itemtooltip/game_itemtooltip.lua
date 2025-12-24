@@ -237,7 +237,7 @@ function onItemHoverChange(widget, hovered)
         if protocol then
             local pos = item:getPosition()
             -- Check if item is in inventory or equipment
-            if pos.x == 65535 then
+            if pos and pos.x == 65535 then
                 if pos.y < 64 then -- Equipment
                     protocol:sendExtendedOpcode(OPCODE_TOOLTIP, "eq:" .. pos.y)
                 else -- Container
@@ -288,6 +288,14 @@ function updateTooltip(item, itemData)
     
     -- Parse Custom Stats from Name (since Description is not synced)
     local desc = name
+    
+    -- Append manual tooltip if available (e.g. from Market)
+    if item.getTooltip then
+        local t = item:getTooltip()
+        if t and t ~= '' then
+            desc = desc .. ' ' .. t
+        end
+    end
     
     if desc and desc ~= '' then
         local healthLeech = desc:match('%[Health Leech: %+([%d%.]+)%%%]')

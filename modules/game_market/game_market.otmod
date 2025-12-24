@@ -1,0 +1,12 @@
+Module
+  name: game_market
+  description: Global Market System
+  author: GitHub Copilot
+  website: https://github.com/edubart/otclient
+  sandboxed: true
+  autoload: true
+  autoload-priority: 1000
+  dependencies: [ game_interface, game_mainpanel ]
+  scripts: [ game_market ]
+  @onLoad: init()
+  @onUnload: terminate()
