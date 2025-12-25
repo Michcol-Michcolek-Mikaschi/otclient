@@ -1,0 +1,14 @@
+Module
+  name: game_crafting
+  description: Crafting System
+  author: Copilot
+  website: https://github.com/edubart/otclient
+  sandboxed: true
+  autoload: true
+  autoload-priority: 1000
+  scripts: [ game_crafting ]
+  @onLoad: init()
+  @onUnload: terminate()
+  dependencies:
+    - game_interface
+    - game_mainpanel

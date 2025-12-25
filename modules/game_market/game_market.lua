@@ -207,13 +207,6 @@ function loadItemsXml()
                 -- Map by Name
                 if currentName then
                     itemCategoriesByName[currentName] = category
-                    if currentName == 'jacket' or currentName:find('sasuke sword') then
-                        g_logger.info('Market: Explicitly mapped "' .. currentName .. '" to ' .. category)
-                    end
-                end
-                
-                if count < 5 then
-                    g_logger.info('Market: Mapped item ' .. currentId .. ' -> ' .. category)
                 end
             end
             

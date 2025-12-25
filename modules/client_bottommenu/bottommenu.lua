@@ -511,8 +511,8 @@ end
 -- (internal)
 -- set creature/boss to boosted slot
 local function applyToBoostedSlot(raceId, outfitWidget, imageWidget, fileName)
-    -- check if raceId was provided in the JSON response
-    if not raceId then
+    -- check if raceId was provided in the JSON response and is valid
+    if not raceId or raceId == 0 then
         return
     end
 
@@ -520,9 +520,7 @@ local function applyToBoostedSlot(raceId, outfitWidget, imageWidget, fileName)
     local raceData = g_things.getRaceData(raceId)
 
     -- check if race id is present in the staticdata
-    if raceData.raceId == 0 then
-        local msg = string.format("[%s] Creature with race id %s was not found.", fileName, data.creatureraceid)
-        g_logger.warning(msg)
+    if not raceData or raceData.raceId == 0 then
         return
     end
 
