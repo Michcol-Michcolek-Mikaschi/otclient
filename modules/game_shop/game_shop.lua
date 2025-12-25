@@ -1479,6 +1479,10 @@ function openCategory(categoryId)
         create()
     end
     
+    if not gameShopWindow then
+        return
+    end
+    
     if not gameShopWindow:isVisible() then
         gameShopWindow:show()
         gameShopWindow:raise()
@@ -1486,7 +1490,11 @@ function openCategory(categoryId)
     end
     
     -- Find category widget
-    local categoriesList = gameShopWindow:getChildById("categories"):getChildById("categoriesList")
+    local categoriesList = gameShopWindow:getChildById("categoriesList")
+    if not categoriesList then
+        return
+    end
+    
     local children = categoriesList:getChildren()
     
     for _, widget in ipairs(children) do
