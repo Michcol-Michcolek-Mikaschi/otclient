@@ -10,6 +10,9 @@ local selectedRecipeId = nil -- For the RECIPES tab selection
 local currentCraftRecipeId = nil -- For the CRAFTING tab auto-detection
 local craftConfirmWindow = nil -- Confirmation dialog
 
+-- Śledzenie przedmiotów w slotach craftingu (pozycja + id)
+local slotTracking = {}
+
 -- OTB Mapping: Server ID -> Client ID
 local serverToClient = {}
 
@@ -161,6 +164,14 @@ end
 function init()
     connect(g_game, { onGameStart = onGameStart,
                       onGameEnd = onGameEnd })
+    
+    -- Nasłuchuj na zmiany w kontenerach
+    connect(Container, { 
+        onOpen = onContainerOpen,
+        onClose = onContainerClose,
+        onUpdateItem = onContainerUpdateItem,
+        onRemoveItem = onContainerRemoveItem
+    })
 
     -- Załaduj mapowanie OTB
     loadItemsOtb()
@@ -197,11 +208,11 @@ function init()
             local slot = craftingWindow:recursiveGetChildById('slot' .. i)
             if slot then
                 slot.onDrop = onSlotDrop
+                slot.slotIndex = i
                 -- Prawy przycisk myszy czyści slot
                 slot.onMouseRelease = function(widget, mousePos, mouseButton)
                     if mouseButton == MouseRightButton then
-                        widget:clearItem()
-                        checkCraftingSlots()
+                        clearSlot(i)
                         return true
                     end
                 end
@@ -241,6 +252,14 @@ end
 function terminate()
     disconnect(g_game, { onGameStart = onGameStart,
                          onGameEnd = onGameEnd })
+    
+    -- Odłącz nasłuchiwanie kontenerów
+    disconnect(Container, { 
+        onOpen = onContainerOpen,
+        onClose = onContainerClose,
+        onUpdateItem = onContainerUpdateItem,
+        onRemoveItem = onContainerRemoveItem
+    })
 
     if craftingWindow then
         craftingWindow:destroy()
@@ -250,6 +269,8 @@ function terminate()
         craftingButton:destroy()
         craftingButton = nil
     end
+    
+    slotTracking = {}
 end
 
 function onGameStart()
@@ -258,6 +279,10 @@ end
 
 function onGameEnd()
     if craftingWindow then craftingWindow:hide() end
+    -- Wyczyść wszystkie sloty przy wylogowaniu
+    for i = 1, 5 do
+        slotTracking[i] = nil
+    end
 end
 
 function toggle()
@@ -267,6 +292,8 @@ function toggle()
         craftingWindow:hide()
         if craftingButton then craftingButton:setOn(false) end
     else
+        -- Przy otwarciu okna waliduj sloty
+        validateAllSlots()
         craftingWindow:show()
         craftingWindow:raise()
         craftingWindow:focus()
@@ -346,6 +373,27 @@ function onSlotDrop(widget, draggedWidget, mousePos)
     if draggedWidget:getClassName() == 'UIItem' and not draggedWidget:isVirtual() then
         local item = draggedWidget:getItem()
         if item then
+            local slotIndex = widget.slotIndex
+            local position = item:getPosition()
+            
+            -- Zapisz informacje o przedmiocie (pozycja + id)
+            slotTracking[slotIndex] = {
+                itemId = item:getId(),
+                position = {
+                    x = position.x,
+                    y = position.y,
+                    z = position.z
+                },
+                containerId = nil,
+                containerSlot = nil
+            }
+            
+            -- Jeśli przedmiot jest w kontenerze, zapisz containerId i slot
+            if position.x == 65535 then
+                slotTracking[slotIndex].containerId = position.y - 64
+                slotTracking[slotIndex].containerSlot = position.z
+            end
+            
             widget:setItemId(item:getId())
             widget:setItemCount(1)
             checkCraftingSlots()
@@ -353,6 +401,105 @@ function onSlotDrop(widget, draggedWidget, mousePos)
         end
     end
     return false
+end
+
+-- Funkcja do czyszczenia slotu
+function clearSlot(slotIndex)
+    local slot = craftingWindow:recursiveGetChildById('slot' .. slotIndex)
+    if slot then
+        slot:setItemId(0)
+        slot:setItemCount(0)
+    end
+    slotTracking[slotIndex] = nil
+    checkCraftingSlots()
+end
+
+-- Funkcja do walidacji wszystkich slotów - sprawdza czy przedmioty nadal istnieją
+function validateAllSlots()
+    for slotIndex, tracking in pairs(slotTracking) do
+        if tracking then
+            local itemStillExists = false
+            
+            if tracking.containerId ~= nil then
+                -- Przedmiot był w kontenerze - sprawdź czy nadal tam jest
+                local container = g_game.getContainer(tracking.containerId)
+                if container then
+                    local item = container:getItem(tracking.containerSlot)
+                    if item and item:getId() == tracking.itemId then
+                        itemStillExists = true
+                    else
+                        -- Może przedmiot przesunął się w kontenerze - szukaj po ID
+                        for i = 0, container:getItemsCount() - 1 do
+                            local checkItem = container:getItem(i)
+                            if checkItem and checkItem:getId() == tracking.itemId then
+                                -- Aktualizuj pozycję
+                                tracking.containerSlot = i
+                                itemStillExists = true
+                                break
+                            end
+                        end
+                    end
+                end
+            end
+            
+            if not itemStillExists then
+                -- Przedmiot zniknął - wyczyść slot
+                clearSlot(slotIndex)
+            end
+        end
+    end
+end
+
+-- Callback: Otwarcie kontenera
+function onContainerOpen(container, previousContainer)
+    -- Waliduj sloty przy otwarciu kontenera
+    scheduleEvent(validateAllSlots, 100)
+end
+
+-- Callback: Zamknięcie kontenera
+function onContainerClose(container)
+    local containerId = container:getId()
+    
+    -- Sprawdź czy któryś ze slotów śledził przedmiot z tego kontenera
+    for slotIndex, tracking in pairs(slotTracking) do
+        if tracking and tracking.containerId == containerId then
+            clearSlot(slotIndex)
+        end
+    end
+end
+
+-- Callback: Aktualizacja przedmiotu w kontenerze
+function onContainerUpdateItem(container, slot, item, oldItem)
+    local containerId = container:getId()
+    
+    -- Sprawdź czy któryś slot śledził przedmiot na tej pozycji
+    for slotIndex, tracking in pairs(slotTracking) do
+        if tracking and tracking.containerId == containerId and tracking.containerSlot == slot then
+            -- Jeśli nowy przedmiot ma inne ID lub go nie ma - wyczyść slot
+            if not item or item:getId() ~= tracking.itemId then
+                clearSlot(slotIndex)
+            end
+        end
+    end
+end
+
+-- Callback: Usunięcie przedmiotu z kontenera
+function onContainerRemoveItem(container, slot, lastItem)
+    local containerId = container:getId()
+    
+    -- Sprawdź czy któryś slot śledził przedmiot na tej pozycji
+    for slotIndex, tracking in pairs(slotTracking) do
+        if tracking and tracking.containerId == containerId and tracking.containerSlot == slot then
+            clearSlot(slotIndex)
+        end
+    end
+    
+    -- Zaktualizuj pozycje slotów dla przedmiotów które mogły się przesunąć
+    for slotIndex, tracking in pairs(slotTracking) do
+        if tracking and tracking.containerId == containerId and tracking.containerSlot > slot then
+            tracking.containerSlot = tracking.containerSlot - 1
+        end
+    end
 end
 
 function checkCraftingSlots()
@@ -479,10 +626,9 @@ function executeCraft()
         modules.game_textmessage.displayFailureMessage("Crafting failed: Connection error.")
     end
     
-    -- Clear slots
+    -- Clear slots and tracking
     for i = 1, 5 do
-        local slot = craftingWindow:recursiveGetChildById('slot' .. i)
-        if slot then slot:setItemId(0) end
+        clearSlot(i)
     end
     checkCraftingSlots()
 end

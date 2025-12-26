@@ -357,7 +357,25 @@ function filterOffers()
     -- Display sorted offers
     for i, offer in ipairs(filteredOffers) do
         local label = g_ui.createWidget('MarketOfferLabel', list)
-        label:setText(offer.amount .. 'x ' .. offer._displayName .. ' - ' .. offer.price .. ' gp')
+        
+        -- Oblicz pozostały czas
+        local expiresText = ""
+        if offer.expiresAt and offer.expiresAt > 0 then
+            local remainingTime = offer.expiresAt - os.time()
+            if remainingTime > 0 then
+                local hours = math.floor(remainingTime / 3600)
+                local minutes = math.floor((remainingTime % 3600) / 60)
+                if hours > 0 then
+                    expiresText = string.format(" [%dh]", hours)
+                else
+                    expiresText = string.format(" [%dm]", minutes)
+                end
+            else
+                expiresText = " [EXP]"
+            end
+        end
+        
+        label:setText(offer.amount .. 'x ' .. offer._displayName .. ' - ' .. offer.price .. ' gp' .. expiresText)
         label:setId('offer' .. offer.id)
         label.offer = offer
         label:setHeight(20)
@@ -450,7 +468,16 @@ function onMarketOpcode(protocol, opcode, buffer)
     local status, data = pcall(json.decode, buffer)
     if not status or not data then return end
     
-    if data.action == "offers" then
+    if data.action == "open_market" then
+        -- Otwórz okno marketu
+        if marketWindow then
+            marketWindow:show()
+            marketWindow:raise()
+            marketWindow:focus()
+            if marketButton then marketButton:setOn(true) end
+            refreshOffers()
+        end
+    elseif data.action == "offers" then
         updateOfferList(data.data)
     elseif data.action == "my_offers" then
         updateMyOffersList(data.data)
@@ -479,7 +506,24 @@ function updateMyOffersList(offers)
             name = getItemName(offer.itemId)
         end
         
-        label:setText(offer.amount .. 'x ' .. name .. ' - ' .. offer.price .. ' gp')
+        -- Oblicz pozostały czas
+        local expiresText = ""
+        if offer.expiresAt and offer.expiresAt > 0 then
+            local remainingTime = offer.expiresAt - os.time()
+            if remainingTime > 0 then
+                local hours = math.floor(remainingTime / 3600)
+                local minutes = math.floor((remainingTime % 3600) / 60)
+                if hours > 0 then
+                    expiresText = string.format(" [%dh %dm left]", hours, minutes)
+                else
+                    expiresText = string.format(" [%dm left]", minutes)
+                end
+            else
+                expiresText = " [EXPIRED]"
+            end
+        end
+        
+        label:setText(offer.amount .. 'x ' .. name .. ' - ' .. offer.price .. ' gp' .. expiresText)
         label:setId('myOffer' .. offer.id)
         label.offer = offer
         label:setHeight(20)
