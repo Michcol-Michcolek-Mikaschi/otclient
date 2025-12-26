@@ -378,3 +378,13 @@ MainWindow
         @onClick: modules.game_autoloot.clearBlacklist()
         $hover:
           background-color: #e74c3c
+
+      Button
+        id: closeButton
+        !text: tr('Close')
+        anchors.right: parent.right
+        anchors.verticalCenter: parent.verticalCenter
+        margin-right: 10
+        width: 80
+        height: 34
+        @onClick: modules.game_autoloot.hide()

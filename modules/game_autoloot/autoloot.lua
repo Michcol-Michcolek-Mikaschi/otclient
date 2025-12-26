@@ -12,7 +12,7 @@ function init()
   -- Dodaj przycisk do panelu głównego (jak game_analyser)
   autolootButton = modules.game_mainpanel.addToggleButton('autolootButton', 
     tr('Auto Loot (Ctrl+Shift+L)'),
-    '/images/options/bot',
+    '/images/options/auto_loot',
     toggle)
   
   if autolootButton then

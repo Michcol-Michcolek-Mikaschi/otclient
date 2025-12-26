@@ -238,7 +238,7 @@ function addCraftingButton()
     if craftingButton then return end
 
     if modules.game_mainpanel then
-        craftingButton = modules.game_mainpanel.addToggleButton('craftingButton', tr('Crafting'), '/images/options/button_questlog', toggle, false, 8)
+        craftingButton = modules.game_mainpanel.addToggleButton('craftingButton', tr('Crafting'), '/images/options/crafting', toggle, false, 8)
         
         if craftingButton then
             craftingButton:setOn(false)
