@@ -199,14 +199,26 @@ minHeight,
         m_cameraFollowing = v;
     }
 
-    void setVocation(uint8_t vocation) { m_vocation = vocation; }
+   void setVocation(uint8_t vocation) { m_vocation = vocation; }
     uint8_t getVocation() { return m_vocation; }
 
+    // --- Zachowane zmiany z HEAD (Kolor Nicku) ---
     void setNameColor(const Color& color) { m_nameColor = color; m_hasCustomNameColor = true; }
     void clearNameColor() { m_nameColor = Color::white; m_hasCustomNameColor = false; }
     Color getNameColor() const { return m_nameColor; }
     bool hasCustomNameColor() const { return m_hasCustomNameColor; }
 
+    // --- Zachowane zmiany z upstream/main (Paperdolls) ---
+    void attachPaperdoll(const PaperdollPtr& obj);
+    void clearPaperdolls();
+    bool hasPaperdoll(uint16_t id);
+
+    bool detachPaperdollById(uint16_t id);
+    bool detachPaperdollByPriority(uint8_t priority);
+
+    PaperdollPtr getPaperdollById(uint16_t id);
+
+    const std::vector<PaperdollPtr>& getPaperdolls() { return m_paperdolls; };
 protected:
     virtual void terminateWalk();
     virtual void onWalking() {};
@@ -215,6 +227,9 @@ protected:
 
     void setOldPositionSilently(const Position& pos) { m_oldPosition = pos; }
     void setRemovedSilently(const bool removed) { m_removed = removed; }
+
+    void onDetachPaperdoll(const PaperdollPtr& paperdoll);
+    void setPaperdollsDirection(Otc::Direction dir) const;
 
     ThingType* getThingType() const override;
     ThingType* getMountThingType() const;
@@ -265,6 +280,8 @@ private:
         std::vector<std::tuple<uint8_t, uint8_t, uint16_t>> iconEntries; // (icon, category, count)
         CachedText numberText;
     };
+
+    std::vector<PaperdollPtr> m_paperdolls;
 
     UIWidgetPtr m_widgetInformation;
 

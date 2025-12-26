@@ -200,18 +200,83 @@ bool Thing::isLoading() const { return getThingType()->isLoading(); }
 bool Thing::isSingleDimension() const { return getThingType()->isSingleDimension(); }
 bool Thing::isTall(const bool useRealSize) const { return getThingType()->isTall(useRealSize); }
 
-bool Thing::hasMiniMapColor() const { return getThingType()->hasMiniMapColor(); }
-bool Thing::hasLensHelp() const { return getThingType()->hasLensHelp(); }
-bool Thing::hasDisplacement() const { return getThingType()->hasDisplacement(); }
-bool Thing::hasElevation() const { return getThingType()->hasElevation(); }
-bool Thing::hasAction() const { return getThingType()->hasAction(); }
-bool Thing::hasWearOut() const { return getThingType()->hasWearOut(); }
-bool Thing::hasClockExpire() const { return getThingType()->hasClockExpire(); }
-bool Thing::hasExpire() const { return getThingType()->hasExpire(); }
-bool Thing::hasExpireStop() const { return getThingType()->hasExpireStop(); }
-bool Thing::hasAnimationPhases() const { return getThingType()->getAnimationPhases() > 1; }
-bool Thing::isDecoKit() const { return getThingType()->isDecoKit(); }
-bool Thing::isAmmo() { return getThingType()->isAmmo(); }
+bool Thing::hasMiniMapColor() const {
+    if (const auto t = getThingType(); t)
+        return t->hasMiniMapColor();
+    return false;
+}
+
+bool Thing::hasLensHelp() const {
+    if (const auto t = getThingType(); t)
+        return t->hasLensHelp();
+    return false;
+}
+
+bool Thing::hasDisplacement() const {
+    if (const auto t = getThingType(); t)
+        return t->hasDisplacement();
+    return false;
+}
+
+bool Thing::hasElevation() const {
+    if (const auto t = getThingType(); t)
+        return t->hasElevation();
+    return false;
+}
+
+bool Thing::hasFloorChange() const {
+    if (const auto t = getThingType(); t)
+        return t->hasFloorChange();
+    return false;
+}
+
+bool Thing::hasAction() const {
+    if (const auto t = getThingType(); t)
+        return t->hasAction();
+    return false;
+}
+
+bool Thing::hasWearOut() const {
+    if (const auto t = getThingType(); t)
+        return t->hasWearOut();
+    return false;
+}
+
+bool Thing::hasClockExpire() const {
+    if (const auto t = getThingType(); t)
+        return t->hasClockExpire();
+    return false;
+}
+
+bool Thing::hasExpire() const {
+    if (const auto t = getThingType(); t)
+        return t->hasExpire();
+    return false;
+}
+
+bool Thing::hasExpireStop() const {
+    if (const auto t = getThingType(); t)
+        return t->hasExpireStop();
+    return false;
+}
+
+bool Thing::hasAnimationPhases() const {
+    if (const auto t = getThingType(); t)
+        return t->getAnimationPhases() > 1;
+    return false;
+}
+
+bool Thing::isDecoKit() const {
+    if (const auto t = getThingType(); t)
+        return t->isDecoKit();
+    return false;
+}
+
+bool Thing::isAmmo() {
+    if (const auto t = getThingType(); t)
+        return t->isAmmo();
+    return false;
+}
 
 PLAYER_ACTION Thing::getDefaultAction() { return getThingType()->getDefaultAction(); }
 
