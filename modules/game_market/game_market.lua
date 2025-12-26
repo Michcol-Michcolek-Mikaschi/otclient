@@ -6,6 +6,7 @@ local sellPanel = nil
 local createOfferPanel = nil
 local selectedOffer = nil
 local selectedSellItem = nil
+local selectedSellItemData = nil
 local pendingOffer = nil
 local OPCODE_MARKET = 52
 
@@ -44,6 +45,12 @@ function init()
     g_logger.info("Game Market: Module loading...")
     connect(g_game, { onGameStart = onGameStart,
                       onGameEnd = onGameEnd })
+    
+    -- Nasłuchuj na zmiany w kontenerach/ekwipunku
+    connect(Container, {
+        onUpdateItem = onContainerItemChange,
+        onRemoveItem = onContainerItemChange
+    })
     
     ProtocolGame.registerExtendedOpcode(OPCODE_MARKET, onMarketOpcode)
 
@@ -271,9 +278,36 @@ function onSearchTextChange(text)
     filterOffers()
 end
 
+function clearOfferPreview()
+    local details = buyPanel:getChildById('detailsPanel')
+    if details then
+        local preview = details:getChildById('itemPreview')
+        if preview then preview:clearItem() end
+        
+        local nameLabel = details:getChildById('itemName')
+        if nameLabel then nameLabel:setText('') end
+        
+        local priceLabel = details:getChildById('itemPrice')
+        if priceLabel then priceLabel:setText('') end
+        
+        local sellerLabel = details:getChildById('itemSeller')
+        if sellerLabel then sellerLabel:setText('') end
+        
+        local statsLabel = details:getChildById('itemStats')
+        if statsLabel then statsLabel:setText('') end
+        
+        local buyButton = details:getChildById('buyButton')
+        if buyButton then buyButton:setEnabled(false) end
+    end
+    selectedOffer = nil
+end
+
 function filterOffers()
     local list = buyPanel:getChildById('offerList')
     list:destroyChildren()
+    
+    -- Wyczyść podgląd przy każdym filtrowaniu
+    clearOfferPreview()
     
     local filteredOffers = {}
     
@@ -395,6 +429,12 @@ function terminate()
     disconnect(g_game, { onGameStart = onGameStart,
                          onGameEnd = onGameEnd })
     
+    -- Odłącz eventy kontenerów
+    disconnect(Container, {
+        onUpdateItem = onContainerItemChange,
+        onRemoveItem = onContainerItemChange
+    })
+    
     ProtocolGame.unregisterExtendedOpcode(OPCODE_MARKET)
 
     if marketWindow then
@@ -443,10 +483,58 @@ function onGameEnd()
     end
 end
 
+-- Funkcja wywoływana gdy item w kontenerze zostanie zmieniony/usunięty
+function onContainerItemChange(container, slot, item, oldItem)
+    -- Sprawdź czy mamy wybrany item do sprzedaży
+    if not selectedSellItemData then
+        return
+    end
+    
+    -- Sprawdź czy zmiana dotyczy naszego itemu
+    local savedPos = selectedSellItemData.position
+    if not savedPos then
+        return
+    end
+    
+    -- Sprawdź czy pozycja pasuje (slot w kontenerze)
+    -- Pozycja itemu w kontenerze: x=65535, y=containerId+64, z=slot
+    if savedPos.x == 65535 then
+        -- To jest pozycja w kontenerze
+        local containerId = savedPos.y - 64
+        if containerId == container:getId() and savedPos.z == slot then
+            -- To nasz item! Został zmieniony lub usunięty
+            clearCreateOfferSlot()
+        end
+    end
+end
+
+function clearCreateOfferSlot()
+    selectedSellItem = nil
+    selectedSellItemData = nil
+    pendingOffer = nil
+    if createOfferPanel then
+        local slotPanel = createOfferPanel:recursiveGetChildById('sellSlotPanel')
+        if slotPanel then
+            local display = slotPanel:getChildById('sellItemDisplay')
+            if display then
+                display:clearItem()
+            end
+        end
+        local priceInput = createOfferPanel:getChildById('priceInput')
+        if priceInput then
+            priceInput:setText('')
+        end
+    end
+end
+
 function toggle()
     if marketWindow:isVisible() then
         marketWindow:hide()
+        -- Wyczyść slot przy zamykaniu
+        clearCreateOfferSlot()
     else
+        -- Wyczyść slot przy otwieraniu
+        clearCreateOfferSlot()
         marketWindow:show()
         marketWindow:raise()
         marketWindow:focus()
@@ -492,6 +580,8 @@ end
 
 function updateOfferList(offers)
     allOffers = offers
+    -- Wyczyść podgląd ponieważ poprzednio wybrana oferta może już nie istnieć
+    clearOfferPreview()
     filterOffers()
 end
 
@@ -653,7 +743,7 @@ function getItemName(id)
 end
 
 function createOffer()
-    if not selectedSellItem then
+    if not selectedSellItem or not selectedSellItemData then
         g_game.talk("Please drag an item to the slot first.")
         return
     end
@@ -666,6 +756,23 @@ function createOffer()
     
     -- Capture item locally to avoid nil upvalue issues in callback
     local itemToSell = selectedSellItem
+    
+    -- Weryfikacja czy item nadal istnieje i jest taki sam
+    local currentItem = itemToSell
+    if not currentItem or currentItem:getId() ~= selectedSellItemData.id then
+        g_game.talk("The item has been moved or removed. Please drag it again.")
+        clearCreateOfferSlot()
+        return
+    end
+    
+    -- Sprawdź czy pozycja i ilość się zgadzają
+    local currentPos = currentItem:getPosition()
+    local savedPos = selectedSellItemData.position
+    if currentPos.x ~= savedPos.x or currentPos.y ~= savedPos.y or currentPos.z ~= savedPos.z then
+        g_game.talk("The item has been moved. Please drag it again.")
+        clearCreateOfferSlot()
+        return
+    end
     
     -- Try to get name locally first
     local name = getItemName(itemToSell:getId())
@@ -727,6 +834,7 @@ function showConfirmDialog(itemToSell, price, name)
         -- Only clear global if it matches what we just sold
         if selectedSellItem == itemToSell then
             selectedSellItem = nil
+            selectedSellItemData = nil
         end
         pendingOffer = nil
     end
@@ -752,7 +860,13 @@ function onSellItemDrop(widget, draggedWidget, mousePos)
         return false
     end
     
+    -- Zapisz pełne informacje o itemie do weryfikacji
     selectedSellItem = item
+    selectedSellItemData = {
+        id = item:getId(),
+        count = item:getCount(),
+        position = item:getPosition()
+    }
     
     local display = widget:getChildById('sellItemDisplay')
     if display then
