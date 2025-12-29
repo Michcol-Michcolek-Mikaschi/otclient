@@ -181,6 +181,10 @@ end
 function show()
     hideTransferWindow()
     if not gameShopWindow then
+        create()
+    end
+
+    if not gameShopWindow then
         return
     end
 
@@ -344,6 +348,15 @@ end
 function onGameShopUpdatePoints(data)
     premiumPoints = tonumber(data.points)
     premiumSecondPoints = tonumber(data.secondPoints)
+
+    if not gameShopWindow then
+        create()
+    end
+
+    if not gameShopWindow then
+        return
+    end
+
     local pointsWidget = gameShopWindow:getChildById("balance"):getChildById("value")
     pointsWidget:setText(comma_value(premiumPoints))
 

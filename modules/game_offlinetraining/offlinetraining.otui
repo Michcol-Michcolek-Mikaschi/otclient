@@ -1,0 +1,102 @@
+TrainingButton < Button
+  height: 32
+  font: verdana-11px-rounded
+  text-align: center
+  margin-top: 3
+  margin-left: 10
+  margin-right: 10
+  color: #ffffff
+
+MainWindow
+  id: offlineTrainingWindow
+  !text: tr('Offline Training')
+  size: 280 460
+  visible: false
+  @onEscape: modules.game_offlinetraining.toggle()
+
+  Label
+    id: infoLabel
+    !text: tr('Select a skill to train offline:')
+    text-align: center
+    color: #c0c0c0
+    anchors.top: parent.top
+    anchors.left: parent.left
+    anchors.right: parent.right
+    margin-top: 8
+
+  Label
+    id: warningLabel
+    !text: tr('You will be logged out.')
+    text-align: center
+    color: #ff9900
+    font: verdana-11px-rounded
+    anchors.top: infoLabel.bottom
+    anchors.left: parent.left
+    anchors.right: parent.right
+    margin-top: 4
+
+  Panel
+    id: skillsPanel
+    layout: verticalBox
+    anchors.top: warningLabel.bottom
+    anchors.left: parent.left
+    anchors.right: parent.right
+    anchors.bottom: closeButton.top
+    margin-top: 10
+    margin-bottom: 8
+    padding: 4
+
+    TrainingButton
+      id: btnStrength
+      !text: tr('Strength')
+      @onClick: modules.game_offlinetraining.selectSkill('0', 'Strength')
+
+    TrainingButton
+      id: btnChakra
+      !text: tr('Chakra Control')
+      @onClick: modules.game_offlinetraining.selectSkill(1, 'Chakra Control')
+
+    TrainingButton
+      id: btnSword
+      !text: tr('Sword Fighting')
+      @onClick: modules.game_offlinetraining.selectSkill(2, 'Sword Fighting')
+
+    TrainingButton
+      id: btnEnergy
+      !text: tr('Energy')
+      @onClick: modules.game_offlinetraining.selectSkill(3, 'Energy')
+
+    TrainingButton
+      id: btnDistance
+      !text: tr('Distance Fighting')
+      @onClick: modules.game_offlinetraining.selectSkill(4, 'Distance Fighting')
+
+    TrainingButton
+      id: btnDefense
+      !text: tr('Defense')
+      @onClick: modules.game_offlinetraining.selectSkill(5, 'Defense')
+
+    TrainingButton
+      id: btnFishing
+      !text: tr('Fishing')
+      @onClick: modules.game_offlinetraining.selectSkill(6, 'Fishing')
+
+    TrainingButton
+      id: btnAttackSpeed
+      !text: tr('Attack Speed')
+      @onClick: modules.game_offlinetraining.selectSkill(7, 'Attack Speed')
+
+    TrainingButton
+      id: btnMagic
+      !text: tr('Magic Level')
+      @onClick: modules.game_offlinetraining.selectSkill(8, 'Magic Level')
+
+  Button
+    id: closeButton
+    !text: tr('Close')
+    width: 80
+    height: 24
+    anchors.horizontalCenter: parent.horizontalCenter
+    anchors.bottom: parent.bottom
+    margin-bottom: 8
+    @onClick: modules.game_offlinetraining.toggle()

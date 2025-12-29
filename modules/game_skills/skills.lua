@@ -5,6 +5,7 @@ local ExpRating = {}
 local smallSkillsCache = {}
 
 local KARMA_OPCODE = 203
+local REFRESH_SKILLS_OPCODE = 57
 local karmaPercent = 0
 local requestKarma
 local updateKarmaUI
@@ -107,6 +108,7 @@ function init()
     })
 
     ProtocolGame.registerExtendedOpcode(KARMA_OPCODE, onKarmaExtendedOpcode)
+    ProtocolGame.registerExtendedOpcode(REFRESH_SKILLS_OPCODE, onRefreshSkillsOpcode)
 
     skillsButton = modules.game_mainpanel.addToggleButton('skillsButton', tr('Skills') .. ' (Alt+S)',
                                                                    '/images/options/button_skills', toggle, false, 1)
@@ -172,6 +174,7 @@ function terminate()
     })
 
     ProtocolGame.unregisterExtendedOpcode(KARMA_OPCODE)
+    ProtocolGame.unregisterExtendedOpcode(REFRESH_SKILLS_OPCODE)
 
     Keybind.delete("Windows", "Show/hide skills windows")
     skillsWindow:destroy()
@@ -233,6 +236,51 @@ function onKarmaExtendedOpcode(protocol, opcode, buffer)
 
     karmaPercent = math.floor(value)
     updateKarmaUI()
+end
+
+function onRefreshSkillsOpcode(protocol, opcode, buffer)
+    if opcode ~= REFRESH_SKILLS_OPCODE then
+        return
+    end
+    
+    local player = g_game.getLocalPlayer()
+    if not player then
+        return
+    end
+    
+    -- Parse buffer: "refresh:skillId"
+    local parts = {}
+    for part in string.gmatch(buffer, "[^:]+") do
+        table.insert(parts, part)
+    end
+    
+    if #parts >= 2 and parts[1] == "refresh" then
+        local skillId = tonumber(parts[2])
+        
+        if skillId ~= nil then
+            -- Get CURRENT data from LocalPlayer (updated by sendSkills packet)
+            local level = player:getSkillLevel(skillId)
+            local percent = player:getSkillLevelPercent(skillId)
+            
+            -- Force update the skill UI directly
+            local skillWidget = skillsWindow:recursiveGetChildById('skillId' .. skillId)
+            if skillWidget then
+                -- Update value
+                local valueWidget = skillWidget:getChildById('value')
+                if valueWidget then
+                    valueWidget:setText(tostring(level))
+                end
+                
+                -- Update percent bar
+                local percentWidget = skillWidget:getChildById('percent')
+                if percentWidget then
+                    local displayPercent = math.floor(percent)
+                    percentWidget:setPercent(displayPercent)
+                    percentWidget:setTooltip(tr('You have %s percent to go', 100 - displayPercent))
+                end
+            end
+        end
+    end
 end
 
 local SKILL_GROUPS = {
@@ -756,6 +804,10 @@ function setSkillTooltip(id, value)
 end
 
 function setSkillPercent(id, percent, tooltip, color)
+    if not skillsWindow then
+        return
+    end
+    
     local skill = skillsWindow:recursiveGetChildById(id)
     if skill then
         local widget = skill:getChildById('percent')
