@@ -143,10 +143,11 @@ public:
     void sendOpenRewardHistory();
     void sendGetRewardDaily(const uint8_t bonusShrine, const std::map<uint16_t, uint8_t>& items);
     void sendStashWithdraw(uint16_t itemId, uint32_t count, uint8_t stackpos);
+    void sendStashStow(const Position& position, const uint16_t itemId, const uint32_t count, const uint8_t stackpos, const uint8_t action);
     void sendHighscoreInfo(uint8_t action, uint8_t category, uint32_t vocation, std::string_view world, uint8_t worldType, uint8_t battlEye, uint16_t page, uint8_t totalPages);
     void sendImbuementDurations(bool isOpen = false);
     void sendRequestBestiary();
-    void sendRequestBestiaryOverview(std::string_view catName);
+    void sendRequestBestiaryOverview(std::string_view catName, bool search = false, std::vector<uint16_t> raceIds = {});
     void sendRequestBestiarySearch(uint16_t raceId);
     void sendBuyCharmRune(uint8_t runeId, uint8_t action, uint16_t raceId);
     void sendCyclopediaRequestCharacterInfo(uint32_t playerId, Otc::CyclopediaCharacterInfoType_t characterInfoType, uint16_t entriesPerPage, uint16_t page);
