@@ -65,6 +65,10 @@ function UIItem:onDrop(widget, mousePos)
         return false
     end
 
+    if not toPos then
+        return false
+    end
+
     if itemPos.x == toPos.x and itemPos.y == toPos.y and itemPos.z == toPos.z then
         return false
     end
