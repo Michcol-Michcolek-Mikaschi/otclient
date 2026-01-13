@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010-2025 OTClient <https://github.com/edubart/otclient>
+ * Copyright (c) 2010-2026 OTClient <https://github.com/edubart/otclient>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -29,6 +29,17 @@
 #include "framework/core/clock.h"
 #include "framework/graphics/paintershaderprogram.h"
 #include "framework/graphics/shadermanager.h"
+#include <framework/util/stats.h>
+
+Thing::Thing()
+{
+    g_stats.addThing();
+}
+
+Thing::~Thing()
+{
+    g_stats.removeThing();
+}
 
 void Thing::setPosition(const Position& position, uint8_t /*stackPos*/)
 {
@@ -278,7 +289,17 @@ bool Thing::isAmmo() {
     return false;
 }
 
-PLAYER_ACTION Thing::getDefaultAction() { return getThingType()->getDefaultAction(); }
+bool Thing::isDualWield() {
+    if (const auto t = getThingType(); t)
+        return t->isDualWield();
+    return false;
+}
+
+PLAYER_ACTION Thing::getDefaultAction() {
+    if (const auto t = getThingType(); t)
+        return t->getDefaultAction();
+    return static_cast<PLAYER_ACTION>(0);
+}
 
 uint16_t Thing::getClassification() { return getThingType()->getClassification(); }
 

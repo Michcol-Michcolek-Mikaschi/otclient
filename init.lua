@@ -7,6 +7,7 @@ Services = {
     status = "https://lon-ots.pl/api/login", --./client_entergame | ./client_topmenu
     --websites = "https://lon-ots.pl/register", --./client_entergame "Forgot password and/or email"
     --createAccount = "https://lon-ots.pl/api/register", --./client_entergame -- createAccount.lua
+    --getCoinsUrl = "https://lon-ots.pl/?subtopic=shop&step=terms", --./game_market
 }
 
 Servers_init = {
