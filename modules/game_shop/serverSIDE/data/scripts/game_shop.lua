@@ -489,6 +489,7 @@ function gameShopInitialize()
 	addAura("Aura Effect 990", 990, 500, false, AURA_DESCRIPTION)
 	addAura("Aura Effect 991", 991, 500, false, AURA_DESCRIPTION)
 	addAura("Aura Effect 1070", 1070, 500, false, AURA_DESCRIPTION)
+	addAura("Shop Aura 777", 777, 500, false, AURA_DESCRIPTION)
 
 	addCategory(nil, "Boosts", 17, CATEGORY_EXTRAS)
 	addItem("Boosts", "XP Boost", "XP_Boost", 30, false, 1, "Purchase a boost that increases the experience points your character gains from hunting by 50%!\n\n* only usable by purchasing character\n* lasts for 1 hour hunting time\n* paused if stamina falls under 14 hours\n* cannot be purchased if an XP boost is already active")

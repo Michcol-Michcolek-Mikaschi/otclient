@@ -777,3 +777,10 @@ AttachedEffectManager.register(1070, 'Shop Aura 1070', 1070, ThingCategoryEffect
     opacity = 0.85,
     offset = { 0, -5, true }
 })
+
+AttachedEffectManager.register(777, 'Shop Aura 777', 777, ThingCategoryEffect, {
+    speed = 0.8,
+    drawOnUI = true,
+    opacity = 0.85,
+    offset = { 0, -5, true }
+})
