@@ -20,8 +20,8 @@ Servers_init = {}
 
 if ENABLE_SERVERS then
     Servers_init = {
-        -- Tutaj wstawiamy Twój serwer z sekcji HEAD:
-        ["lon-ots.pl"] = {
+        -- Pełny URL z https:// i ścieżką /api/login
+        ["https://lon-ots.pl/api/login"] = {
             port = 443,
             protocol = 1310,
             httpLogin = true

@@ -107,7 +107,8 @@ void LoginHttp::httpLogin(const std::string& host, const std::string& path,
         if (cancelled.load()) return;
         httplib::Result result =
             this->loginHttpsJson(host, path, port, email, password, token);
-        if (httpLogin && (!result || result->status != Success)) {
+        // Fallback HTTP tylko dla portów != 443 (port HTTPS)
+        if (httpLogin && (!result || result->status != Success) && port != 443) {
             if (cancelled.load()) return;
             result = loginHttpJson(host, path, port, email, password, token);
         }
