@@ -9,15 +9,25 @@ Services = {
     --createAccount = "https://lon-ots.pl/api/register", --./client_entergame -- createAccount.lua
     --getCoinsUrl = "https://lon-ots.pl/?subtopic=shop&step=terms", --./game_market
 }
+--- Enables or disables the entire server configuration block.
+-- Set to `false` to disable all configuration below.
+local ENABLE_SERVERS = true
 
-Servers_init = {
-    ["lon-ots.pl"] = {
-        ["port"] = 443,
-        ["protocol"] = 1310,
-        ["httpLogin"] = true
+---
+-- @module Servers_init
+-- Configuration table for all servers used by the system.
+Servers_init = {}
+
+if ENABLE_SERVERS then
+    Servers_init = {
+        -- Tutaj wstawiamy Twój serwer z sekcji HEAD:
+        ["lon-ots.pl"] = {
+            port = 443,
+            protocol = 1310,
+            httpLogin = true
+        }
     }
-}
-
+end
 g_app.setName("OTClient - Redemption");
 g_app.setCompactName("otclient");
 g_app.setOrganizationName("otcr");

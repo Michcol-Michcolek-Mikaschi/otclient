@@ -35,7 +35,8 @@ public:
                         uint16_t port, const std::string& email,
                         const std::string& password);
 
-    void Logger(const auto& req, const auto& res);
+    // Dodałem 'static', aby naprawić błąd kompilacji z logów
+    static void Logger(const auto& req, const auto& res);
 
     std::string getCharacterList();
 
@@ -45,10 +46,10 @@ public:
 
     bool parseJsonResponse(const std::string& body);
 
+    // Wybrana wersja UPSTREAM (token na końcu), pasująca do pliku .cpp
     void httpLogin(const std::string& host, const std::string& path,
                    uint16_t port, const std::string& email,
-                   const std::string& password, const std::string& token,
-                   int request_id, bool httpLogin);
+                   const std::string& password, int request_id, bool httpLogin, const std::string& token);
 
     httplib::Result loginHttpsJson(const std::string& host,
                                    const std::string& path, uint16_t port,
