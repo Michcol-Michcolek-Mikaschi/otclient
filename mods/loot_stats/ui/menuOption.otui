@@ -1,0 +1,105 @@
+UIWidget
+  anchors.fill: parent
+  visible: false
+
+  SmallReversedQtPanel
+    id: showLootSection
+    anchors.left: parent.left
+    anchors.right: parent.right
+    anchors.top: parent.top
+    height: 22
+
+    OptionCheckBox
+      id: showLootOnScreen
+      !text: tr('Show the loot on the screen')
+
+  SmallReversedQtPanel
+    id: amountLootSection
+    anchors.left: parent.left
+    anchors.right: parent.right
+    anchors.top: prev.bottom
+    margin-top: 7
+    height: 40
+
+    Label
+      id: amountLootOnScreenLabel
+      !text: tr('Amount of loot on screen: 5')
+      anchors.left: parent.left
+      anchors.right: parent.right
+      anchors.top: parent.top
+
+    OptionScaleScroll
+      id: amountLootOnScreen
+      anchors.left: parent.left
+      anchors.right: parent.right
+      anchors.top: prev.bottom
+      margin-top: 3
+      minimum: 1
+      maximum: 20
+      step: 1
+
+  SmallReversedQtPanel
+    id: delayTimeSection
+    anchors.left: parent.left
+    anchors.right: parent.right
+    anchors.top: prev.bottom
+    margin-top: 7
+    height: 40
+
+    Label
+      id: delayTimeLootOnScreenLabel
+      !text: tr('Delay time (ms): 3000')
+      anchors.left: parent.left
+      anchors.right: parent.right
+      anchors.top: parent.top
+
+    OptionScaleScroll
+      id: delayTimeLootOnScreen
+      anchors.left: parent.left
+      anchors.right: parent.right
+      anchors.top: prev.bottom
+      margin-top: 3
+      minimum: 500
+      maximum: 10000
+      step: 100
+
+  SmallReversedQtPanel
+    id: ignoreMonsterSection
+    anchors.left: parent.left
+    anchors.right: parent.right
+    anchors.top: prev.bottom
+    margin-top: 7
+    height: 22
+
+    OptionCheckBox
+      id: ignoreMonsterLevelSystem
+      !text: tr('Ignore monster level system')
+      !tooltip: tr('When OFF - ignore level in bracket ("Monster [100]" -> "Monster")\nWhen ON don\'t ignore level in bracket ("Monster [100]" -> "Monster [100]")')
+
+  SmallReversedQtPanel
+    id: ignoreLastSignSection
+    anchors.left: parent.left
+    anchors.right: parent.right
+    anchors.top: prev.bottom
+    margin-top: 7
+    height: 22
+
+    OptionCheckBox
+      id: ignoreLastSignWhenDot
+      !text: tr('Ignore last sign when dot')
+      !tooltip: tr('When OFF delete last character in log, when it is dot.\nWhen ON don\'t delete last character in log, when it is dot.')
+
+  SmallReversedQtPanel
+    id: clearDataSection
+    anchors.left: parent.left
+    anchors.right: parent.right
+    anchors.top: prev.bottom
+    margin-top: 7
+    height: 30
+
+    Button
+      id: clearData
+      !text: tr('Clear data')
+      anchors.horizontalCenter: parent.horizontalCenter
+      anchors.verticalCenter: parent.verticalCenter
+      width: 90
